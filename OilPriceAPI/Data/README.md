@@ -22,13 +22,13 @@ The system expects the CPC DataSet format with Chinese field names:
 <DataSet xmlns="http://tmtd.cpc.com.tw/">
   <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
     <NewDataSet xmlns="">
-      <tbTable diffgr:id="tbTable1" msdata:rowOrder="0">
+      <tbTable diffgr:id="tbTable1" msdata:roworder="0">
         <牌價生效時間>1999-01-06T00:00:00+08:00</牌價生效時間>
         <產品名>無鉛汽油92</產品名>
         <參考牌價>15</參考牌價>
         <計價單位>元/公升</計價單位>
       </tbTable>
-      <tbTable diffgr:id="tbTable2" msdata:rowOrder="1">
+      <tbTable diffgr:id="tbTable2" msdata:roworder="1">
         <牌價生效時間>1999-04-07T00:00:00+08:00</牌價生效時間>
         <產品名>無鉛汽油92</產品名>
         <參考牌價>15.3</參考牌價>
@@ -39,6 +39,12 @@ The system expects the CPC DataSet format with Chinese field names:
   </diffgr:diffgram>
 </DataSet>
 ```
+
+**Important Note about XML Attributes:**
+- The CPC format uses `msdata:roworder` (lowercase 'o') not `msdata:rowOrder` (uppercase 'O')
+- Visual Studio may show a warning about undeclared attributes - this is normal and can be ignored
+- The `msdata:roworder` attribute is defined by the Microsoft XML Schema namespace
+- Simply paste your CPC XML data directly - it will work correctly
 
 ## How to Add Data
 
@@ -55,13 +61,15 @@ The system expects the CPC DataSet format with Chinese field names:
 If you only have a few records, you can manually add `<tbTable>` entries:
 
 ```xml
-<tbTable diffgr:id="tbTable3" msdata:rowOrder="2">
+<tbTable diffgr:id="tbTable3" msdata:roworder="2">
   <牌價生效時間>2024-12-01T00:00:00+08:00</牌價生效時間>
   <產品名>無鉛汽油92</產品名>
   <參考牌價>30.3</參考牌價>
   <計價單位>元/公升</計價單位>
 </tbTable>
 ```
+
+**Note:** Use `msdata:roworder` (lowercase 'o') as shown above to match the CPC format.
 
 ## Fields Required
 

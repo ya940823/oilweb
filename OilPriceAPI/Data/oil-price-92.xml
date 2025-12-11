@@ -3,11 +3,17 @@
   <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
     <NewDataSet xmlns="">
       <!-- Paste your 92 unleaded gasoline data here -->
-      <!-- Example format:
-      <tbTable diffgr:id="tbTable1" msdata:rowOrder="0">
-        <牌價生效時間>2024-12-01T00:00:00+08:00</牌價生效時間>
+      <!-- Example format: (use the exact format from CPC API)
+      <tbTable diffgr:id="tbTable1" msdata:roworder="0">
+        <牌價生效時間>1999-01-06T00:00:00+08:00</牌價生效時間>
         <產品名>無鉛汽油92</產品名>
-        <參考牌價>30.3</參考牌價>
+        <參考牌價>15</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable2" msdata:roworder="1">
+        <牌價生效時間>1999-04-07T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>15.3</參考牌價>
         <計價單位>元/公升</計價單位>
       </tbTable>
       -->
