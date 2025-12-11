@@ -117,8 +117,10 @@ async function loadChart(days) {
         // 更新按鈕狀態
         document.querySelectorAll('.btn-group .btn').forEach(btn => {
             btn.classList.remove('active');
+            if (btn.textContent.includes(days.toString())) {
+                btn.classList.add('active');
+            }
         });
-        event.target.classList.add('active');
     } catch (error) {
         console.error('載入走勢圖失敗:', error);
     }
