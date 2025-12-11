@@ -19,7 +19,7 @@
 - Entity Framework Core 10.0
 
 ### 資料庫
-- SQL Server（LocalDB）
+- SQLite（跨平台支援）
 - Entity Framework Core
 - 自動建立資料表
 
@@ -82,7 +82,7 @@ ASP.NET Core Web API（後端）
 ### 前置需求
 
 - .NET 10.0 SDK
-- SQL Server（LocalDB 或 SQL Server Express）
+- SQLite（自動包含）
 
 ### 安裝步驟
 
@@ -108,17 +108,17 @@ ASP.NET Core Web API（後端）
 
 ### 資料庫設定
 
-專案使用 LocalDB，連線字串定義在 `appsettings.json`：
+專案使用 SQLite，連線字串定義在 `appsettings.json`：
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=OilPriceDB;Trusted_Connection=true;TrustServerCertificate=true;"
+    "DefaultConnection": "Data Source=OilPriceDB.db"
   }
 }
 ```
 
-如需使用其他 SQL Server，請修改連線字串。
+資料庫檔案會自動在專案根目錄建立。如需使用 SQL Server，請安裝 `Microsoft.EntityFrameworkCore.SqlServer` 套件並修改連線字串。
 
 ## API 端點
 

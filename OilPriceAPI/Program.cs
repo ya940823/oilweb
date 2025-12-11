@@ -21,9 +21,9 @@ builder.Services.AddCors(options =>
 
 // Add Database Context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Server=(localdb)\\mssqllocaldb;Database=OilPriceDB;Trusted_Connection=true;TrustServerCertificate=true;";
+    ?? "Data Source=OilPriceDB.db";
 builder.Services.AddDbContext<OilPriceContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlite(connectionString));
 
 // Add HTTP Client
 builder.Services.AddHttpClient();
