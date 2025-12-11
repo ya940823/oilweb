@@ -20,18 +20,11 @@ public class OilPriceBackgroundService : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var now = DateTime.Now;
-            var next12PM = DateTime.Today.AddHours(12);
-            
-            if (now.Hour >= 12)
-            {
-                next12PM = next12PM.AddDays(1);
-            }
+            // Check every hour for new data
+            var delayMinutes = 60; // Check every hour
+            _logger.LogInformation($"Next oil price fetch scheduled in {delayMinutes} minutes");
 
-            var delay = next12PM - now;
-            _logger.LogInformation($"Next oil price fetch scheduled at {next12PM}");
-
-            await Task.Delay(delay, stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(delayMinutes), stoppingToken);
 
             if (!stoppingToken.IsCancellationRequested)
             {

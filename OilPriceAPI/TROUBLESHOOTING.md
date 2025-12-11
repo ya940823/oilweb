@@ -62,15 +62,21 @@
 
 **解決方案**：
 1. **使用範例資料**（建議）：參考 SAMPLE_DATA.md 新增本地測試資料
-2. **檢查 API 金鑰**：確認 `appsettings.json` 中的 `OilPriceApi:ApiKey` 是否有效
+2. **檢查 API 金鑰**：
+   - 確認 `appsettings.json` 中的 `OilPriceApi:ApiKey` 是否有效
+   - API 金鑰格式已修正為：`Authorization: API{your_token_here}`
+   - 如果看到 "application token required" 錯誤，表示 API 金鑰無效或未正確設定
 3. **測試 API 連線**：
    ```bash
    curl -X POST "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/93aba44236ca/pub_93aba848a466" \
-     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Authorization: APIeyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
      -H "Content-Type: application/json" \
      -d '{"start":"2025-11-01","end":"2025-12-11"}'
    ```
-4. **忽略錯誤**：如果您只是要測試系統，可以忽略 API 錯誤訊息，系統會使用本地資料庫
+4. **手動刷新資料**：使用 `POST /api/oilprices/refresh?days=90` 端點立即更新資料
+5. **忽略錯誤**：如果您只是要測試系統，可以忽略 API 錯誤訊息，系統會使用本地資料庫
+
+**更新頻率**：背景服務現在每小時檢查一次新資料（不再只在 12:00 更新）
 
 ### 4. 統計資訊顯示 "--"
 

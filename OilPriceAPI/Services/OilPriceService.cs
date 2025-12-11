@@ -32,7 +32,7 @@ public class OilPriceService
             var client = _httpClientFactory.CreateClient();
             if (!string.IsNullOrEmpty(_apiKey))
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+                client.DefaultRequestHeaders.Add("Authorization", $"API{_apiKey}");
             }
 
             var requestBody = new
