@@ -62,15 +62,38 @@ public class OilPriceService
             {
                 var root = doc.RootElement;
                 
-                // Check for error response format: {"status": xxx, "error_msg": "..."}
-                if (root.ValueKind == JsonValueKind.Object && 
-                    root.TryGetProperty("status", out var statusProp) && 
-                    root.TryGetProperty("error_msg", out var errorProp))
+                // Check for error response formats:
+                // Format 1: {"status": xxx, "error_msg": "..."}
+                // Format 2: {"status": xxx, "error": {"code": "...", "msg": "..."}}
+                if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("status", out var statusProp))
                 {
-                    var errorMsg = errorProp.GetString() ?? "Unknown error";
-                    var status = statusProp.GetInt32();
-                    _logger.LogError($"API returned error (status {status}): {errorMsg}");
-                    return false;
+                    string? errorMsg = null;
+                    
+                    // Try format 1: error_msg field
+                    if (root.TryGetProperty("error_msg", out var errorMsgProp))
+                    {
+                        errorMsg = errorMsgProp.GetString();
+                    }
+                    // Try format 2: error object with msg field
+                    else if (root.TryGetProperty("error", out var errorObj) && errorObj.ValueKind == JsonValueKind.Object)
+                    {
+                        if (errorObj.TryGetProperty("msg", out var msgProp))
+                        {
+                            errorMsg = msgProp.GetString();
+                        }
+                        if (errorObj.TryGetProperty("code", out var codeProp))
+                        {
+                            var code = codeProp.GetString();
+                            errorMsg = $"[{code}] {errorMsg}";
+                        }
+                    }
+                    
+                    if (!string.IsNullOrEmpty(errorMsg))
+                    {
+                        var status = statusProp.GetInt32();
+                        _logger.LogError($"API returned error (status {status}): {errorMsg}");
+                        return false;
+                    }
                 }
             }
             
