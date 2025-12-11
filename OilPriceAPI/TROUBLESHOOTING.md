@@ -40,16 +40,35 @@
    curl -X POST "http://localhost:5000/api/oilprices/refresh?days=90"
    ```
 
-### 3. API 連線失敗
+### 3. API 連線失敗或 JSON 解析錯誤
 
-**症狀**：Console 顯示 "Resource temporarily unavailable" 錯誤
+**症狀**：
+- Console 顯示 "Resource temporarily unavailable" 錯誤
+- 或顯示 "System.Text.Json.JsonException: The JSON value could not be converted..."
+- 或顯示 "API returned error: ..." 訊息
 
-**原因**：無法連接到政府開放資料平台 API
+**原因**：
+- 無法連接到政府開放資料平台 API
+- API 金鑰無效或過期
+- API 回傳錯誤訊息（例如：認證失敗、參數錯誤）
 
 **這是正常的**：
-- 在某些環境中（如沙盒、防火牆後），外部 API 可能無法訪問
-- 系統設計為可以使用本地資料庫運作
-- 新增範例資料即可正常使用所有功能
+- 在某些環境中（如沙盒、防火牆後、離線環境），外部 API 可能無法訪問
+- API 金鑰可能需要從政府開放資料平台重新申請
+- 系統設計為可以使用本地資料庫運作，**不需要外部 API 也能正常使用**
+- 新增範例資料即可正常使用所有功能，包括圖表顯示和預測
+
+**解決方案**：
+1. **使用範例資料**（建議）：參考 SAMPLE_DATA.md 新增本地測試資料
+2. **檢查 API 金鑰**：確認 `appsettings.json` 中的 `OilPriceApi:ApiKey` 是否有效
+3. **測試 API 連線**：
+   ```bash
+   curl -X POST "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/93aba44236ca/pub_93aba848a466" \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"start":"2025-11-01","end":"2025-12-11"}'
+   ```
+4. **忽略錯誤**：如果您只是要測試系統，可以忽略 API 錯誤訊息，系統會使用本地資料庫
 
 ### 4. 統計資訊顯示 "--"
 

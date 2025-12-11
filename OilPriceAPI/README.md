@@ -59,8 +59,22 @@ dotnet restore
 dotnet run
 ```
 
-5. **瀏覽網站**
+5. **新增範例資料**（重要！）
+
+由於政府 API 可能無法訪問或需要有效的 API 金鑰，建議先新增範例資料：
+```bash
+# 在 OilPriceAPI 目錄中執行
+sqlite3 oilprice.db << 'EOF'
+-- 貼上 SAMPLE_DATA.md 中的 SQL 腳本
+EOF
+```
+
+或直接參考 `SAMPLE_DATA.md` 檔案中的完整指令。
+
+6. **瀏覽網站**
 開啟瀏覽器前往 `http://localhost:5000`
+
+> **注意**：如果看到 API 連線錯誤訊息（如 JSON 解析錯誤），這是正常的。系統設計為即使沒有外部 API 也能正常運作，只要資料庫中有資料即可。
 
 ## 資料庫設定
 

@@ -56,6 +56,23 @@ public class OilPriceService
             }
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
+            
+            // Check if response contains an error
+            try
+            {
+                var errorCheck = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonResponse);
+                if (errorCheck != null && errorCheck.ContainsKey("status") && errorCheck.ContainsKey("error_msg"))
+                {
+                    var errorMsg = errorCheck["error_msg"].GetString();
+                    _logger.LogError($"API returned error: {errorMsg}");
+                    return false;
+                }
+            }
+            catch
+            {
+                // Not an error format, continue with normal parsing
+            }
+            
             var oilPriceData = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, List<Dictionary<string, JsonElement>>>>>(jsonResponse);
 
             if (oilPriceData == null)
