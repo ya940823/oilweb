@@ -58,26 +58,37 @@ public class OilPriceService
             var jsonResponse = await response.Content.ReadAsStringAsync();
             
             // Check if response contains an error
-            try
+            using (JsonDocument doc = JsonDocument.Parse(jsonResponse))
             {
-                var errorCheck = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonResponse);
-                if (errorCheck != null && errorCheck.ContainsKey("status") && errorCheck.ContainsKey("error_msg"))
+                var root = doc.RootElement;
+                
+                // Check for error response format: {"status": xxx, "error_msg": "..."}
+                if (root.ValueKind == JsonValueKind.Object && 
+                    root.TryGetProperty("status", out var statusProp) && 
+                    root.TryGetProperty("error_msg", out var errorProp))
                 {
-                    var errorMsg = errorCheck["error_msg"].GetString();
-                    _logger.LogError($"API returned error: {errorMsg}");
+                    var errorMsg = errorProp.GetString() ?? "Unknown error";
+                    var status = statusProp.GetInt32();
+                    _logger.LogError($"API returned error (status {status}): {errorMsg}");
                     return false;
                 }
             }
-            catch
-            {
-                // Not an error format, continue with normal parsing
-            }
             
-            var oilPriceData = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, List<Dictionary<string, JsonElement>>>>>(jsonResponse);
+            // Try to deserialize as success format
+            Dictionary<string, Dictionary<string, List<Dictionary<string, JsonElement>>>>? oilPriceData;
+            try
+            {
+                oilPriceData = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, List<Dictionary<string, JsonElement>>>>>(jsonResponse);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"Failed to deserialize API response: {ex.Message}. Response: {jsonResponse.Substring(0, Math.Min(200, jsonResponse.Length))}...");
+                return false;
+            }
 
             if (oilPriceData == null)
             {
-                _logger.LogError("Failed to deserialize oil price data");
+                _logger.LogError("Failed to deserialize oil price data - result was null");
                 return false;
             }
 

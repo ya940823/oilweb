@@ -44,13 +44,15 @@
 
 **症狀**：
 - Console 顯示 "Resource temporarily unavailable" 錯誤
-- 或顯示 "System.Text.Json.JsonException: The JSON value could not be converted..."
-- 或顯示 "API returned error: ..." 訊息
+- 或顯示 "System.Text.Json.JsonException: The JSON value could not be converted..." (**已修復在最新版本**)
+- 或顯示 "API returned error (status xxx): ..." 訊息（正常錯誤處理）
+- 或顯示 "Failed to deserialize API response: ..." 訊息
 
 **原因**：
-- 無法連接到政府開放資料平台 API
-- API 金鑰無效或過期
-- API 回傳錯誤訊息（例如：認證失敗、參數錯誤）
+- 無法連接到政府開放資料平台 API（網路問題、防火牆）
+- API 金鑰無效、過期或未設定
+- API 回傳錯誤訊息（例如：認證失敗、參數錯誤、配額用完）
+- API 回傳的資料格式與預期不符
 
 **這是正常的**：
 - 在某些環境中（如沙盒、防火牆後、離線環境），外部 API 可能無法訪問
