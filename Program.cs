@@ -6,34 +6,15 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Add CORS with environment-aware configuration
+// Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy",
+    options.AddPolicy("AllowAll",
         policy =>
         {
-            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-            
-            if (allowedOrigins != null && allowedOrigins.Length > 0 && allowedOrigins[0] == "*")
-            {
-                // Development mode: Allow all origins
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            }
-            else if (allowedOrigins != null && allowedOrigins.Length > 0)
-            {
-                // Production mode: Restrict to specific origins
-                policy.WithOrigins(allowedOrigins)
-                      .AllowAnyMethod()
-                      .AllowAnyHeader()
-                      .AllowCredentials();
-            }
-            else
-            {
-                // No origins specified: Deny all cross-origin requests
-                policy.WithOrigins();
-            }
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
         });
 });
 
@@ -54,7 +35,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Use CORS
-app.UseCors("CorsPolicy");
+app.UseCors("AllowAll");
 
 // Use authentication and authorization (for future use)
 app.UseAuthentication();
