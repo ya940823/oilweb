@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadLatestPrices();
     loadChart(0); // 0 means load all historical data
     loadStatistics(0); // 0 means calculate statistics from all historical data
+    load10LiterComparison(); // Load 10 liter price comparison
 });
 
 // Seed sample data function
@@ -109,6 +110,7 @@ function filterByWeeks(weeks) {
     if (currentWeeksFilter === 0 || allChartData.length === 0) {
         // Show all data
         drawChart(allChartData);
+        loadStatistics(0); // Update statistics for all data
     } else {
         // Filter to last N weeks of historical data + all predictions
         const daysToShow = currentWeeksFilter * 7;
@@ -126,6 +128,9 @@ function filterByWeeks(weeks) {
             const filteredData = [...filteredHistorical, ...predictionData];
             drawChart(filteredData);
         }
+        
+        // Update statistics based on selected weeks
+        loadStatistics(daysToShow);
     }
 }
 
@@ -324,6 +329,10 @@ async function loadStatistics(days) {
         
         const data = await response.json();
         
+        // Update statistics title based on filter
+        const title = days === 0 ? '統計資訊（所有歷史資料）' : `統計資訊（最近 ${Math.floor(days / 7)} 週）`;
+        document.getElementById('statisticsTitle').textContent = title;
+        
         document.getElementById('stat92Avg').textContent = `$${data.price92.average.toFixed(2)}`;
         document.getElementById('stat92Max').textContent = `$${data.price92.max.toFixed(1)}`;
         document.getElementById('stat92Min').textContent = `$${data.price92.min.toFixed(1)}`;
@@ -473,6 +482,53 @@ async function queryPrediction() {
     `;
     
     document.getElementById('predictionResult').style.display = 'block';
+}
+
+// Load 10 liter price comparison with last week
+async function load10LiterComparison() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/history?days=14`);
+        if (!response.ok) {
+            console.error('Failed to load comparison data');
+            return;
+        }
+        
+        const data = await response.json();
+        
+        if (data.length < 8) {
+            // Not enough data to compare
+            return;
+        }
+        
+        // Get data from 7 days ago (last week)
+        const lastWeekData = data[Math.max(0, data.length - 8)];
+        const currentData = data[data.length - 1];
+        
+        // Calculate difference per 10 liters
+        const diff92 = (currentData.price92 - lastWeekData.price92) * 10;
+        const diff95 = (currentData.price95 - lastWeekData.price95) * 10;
+        const diff98 = (currentData.price98 - lastWeekData.price98) * 10;
+        const diffDiesel = (currentData.priceDiesel - lastWeekData.priceDiesel) * 10;
+        
+        // Update UI
+        document.getElementById('compare92').innerHTML = formatComparisonText(diff92);
+        document.getElementById('compare95').innerHTML = formatComparisonText(diff95);
+        document.getElementById('compare98').innerHTML = formatComparisonText(diff98);
+        document.getElementById('compareDiesel').innerHTML = formatComparisonText(diffDiesel);
+        
+    } catch (error) {
+        console.error('Error loading 10L comparison:', error);
+    }
+}
+
+function formatComparisonText(diff) {
+    if (diff > 0) {
+        return `<span class="text-danger">▲ $${diff.toFixed(1)}</span>`;
+    } else if (diff < 0) {
+        return `<span class="text-success">▼ $${Math.abs(diff).toFixed(1)}</span>`;
+    } else {
+        return '<span class="text-muted">─ $0.0</span>';
+    }
 }
 
 // Export data to CSV
