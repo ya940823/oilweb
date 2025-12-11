@@ -60,7 +60,7 @@ function updatePrice(type, price, change) {
 }
 
 // Load chart data
-async function loadChart(days) {
+async function loadChart(days, buttonElement = null) {
     try {
         currentDays = days;
         const response = await fetch(`${API_BASE}/history?days=${days}`);
@@ -88,7 +88,15 @@ async function loadChart(days) {
         document.querySelectorAll('.btn-group .btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        event.target.classList.add('active');
+        
+        // Find and activate the button for the current days value
+        const buttons = document.querySelectorAll('.btn-group .btn');
+        buttons.forEach(btn => {
+            const btnText = btn.textContent.trim();
+            if (btnText.includes(`${days} 天`)) {
+                btn.classList.add('active');
+            }
+        });
         
         // Load statistics
         loadStatistics(days);
