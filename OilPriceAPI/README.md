@@ -5,10 +5,10 @@
 ## 專案特色
 
 ### 🎯 核心功能
-- **中油 API 整合**：自動從台灣中油官方 API 擷取歷史油價資料
+- **本地 XML 資料源**：從本地 XML 檔案讀取中油歷史油價資料（不再依賴外部 API）
 - **30 天預測**：使用線性迴歸預測未來油價走勢
 - **虛線視覺化**：圖表中歷史資料用實線、預測資料用虛線顯示
-- **自動更新**：每小時自動抓取最新油價
+- **離線運作**：完全離線可用，不受網路限制
 - **RESTful API**：提供完整的 API 端點供查詢
 - **響應式介面**：支援各種裝置瀏覽
 
@@ -18,11 +18,11 @@
 - 分別計算 92、95、98 無鉛汽油與柴油的趨勢
 - 預測未來 30 天的價格變化
 
-### 🔄 自動更新
-- 背景服務每小時自動檢查新資料
+### 🔄 資料載入
+- 背景服務每小時自動從 XML 檔案載入資料
 - 支援手動刷新：`POST /api/oilprices/refresh?days=90`
-- 首次啟動時自動載入 90 天歷史資料
-- 資料來源：台灣中油公司官方 API (vipmbr.cpc.com.tw)
+- 首次啟動時自動載入 XML 檔案中的所有歷史資料
+- 資料來源：本地 XML 檔案（Data 目錄下）
 
 ## 安裝與執行
 
@@ -38,16 +38,15 @@ git clone https://github.com/ya940823/oilweb.git
 cd oilweb/OilPriceAPI
 ```
 
-2. **API 設定**
+2. **準備 XML 資料檔案**
 
-系統已預設使用台灣中油官方 API，無需額外設定 API 金鑰。
-API 端點已設定為：
-```json
-{
-  "OilPriceApi": {
-    "Url": "https://vipmbr.cpc.com.tw/cpcstn/listpricewebservice.asmx/getCPCMainProdListPrice_Historical",
-    "ApiKey": ""
-  }
+系統從本地 XML 檔案讀取油價資料。請將中油 XML 資料貼到以下檔案：
+
+```
+OilPriceAPI/Data/oil-price-92.xml   ← 92 無鉛汽油
+OilPriceAPI/Data/oil-price-95.xml   ← 95 無鉛汽油
+OilPriceAPI/Data/oil-price-98.xml   ← 98 無鉛汽油
+OilPriceAPI/Data/oil-price-diesel.xml ← 超級柴油
 }
 ```
 
@@ -61,44 +60,50 @@ dotnet restore
 dotnet run
 ```
 
-5. **新增範例資料**（**必須！**）
+5. **準備 XML 資料**（**重要！**）
 
-⚠️ **首次執行時資料庫是空的，圖表將無法顯示。請先新增範例資料：**
+⚠️ **首次執行時資料庫是空的，圖表將無法顯示。請準備 XML 資料：**
 
-**方法 1 - 在網頁上點擊按鈕（最簡單！）：**
+**方法 1 - 貼上中油 XML 資料（推薦）：**
 
-開啟瀏覽器訪問 http://localhost:5000，如果資料庫為空，會看到黃色警告框，點擊「📊 新增範例資料」按鈕即可。
+1. 將中油 API 回傳的 XML 資料貼到對應檔案：
+   - `Data/oil-price-92.xml` ← 92 無鉛汽油
+   - `Data/oil-price-95.xml` ← 95 無鉛汽油
+   - `Data/oil-price-98.xml` ← 98 無鉛汽油
+   - `Data/oil-price-diesel.xml` ← 超級柴油
 
-**方法 2 - 使用 API 端點：**
-
-在新的終端視窗執行：
-```bash
-curl -X POST http://localhost:5000/api/oilprices/seed-sample-data
+2. XML 格式範例：
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<DataSet xmlns="http://tmtd.cpc.com.tw/">
+  <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+    <NewDataSet xmlns="">
+      <tbTable diffgr:id="tbTable1" msdata:rowOrder="0">
+        <牌價生效時間>2024-12-01T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.3</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <!-- 更多記錄... -->
+    </NewDataSet>
+  </diffgr:diffgram>
+</DataSet>
 ```
 
-**方法 3 - 使用腳本（需要 sqlite3 工具）：**
+3. 點擊「🔄 更新資料」按鈕或等待自動載入
 
-Linux/Mac:
-```bash
-./setup-sample-data.sh
-```
+詳細說明請參考：`Data/README.md`
 
-Windows:
-```batch
-setup-sample-data.bat
-```
+**方法 2 - 使用範例資料（快速測試）：**
 
-**方法 4 - 手動執行 SQL：**
-```bash
-sqlite3 oilprice.db < SAMPLE_DATA.md
-```
+如果您沒有中油 XML 資料，可以使用網頁按鈕新增範例資料：
 
-這將新增 36 筆範例資料（2025年10月至12月的油價）。
+開啟瀏覽器訪問 http://localhost:5000，如果資料庫為空，會看到黃色警告框，點擊「📊 新增範例資料」按鈕即可新增 36 筆測試資料。
 
 6. **瀏覽網站**
 開啟瀏覽器前往 `http://localhost:5000`
 
-> **注意**：如果看到 API 連線錯誤訊息（如 JSON 解析錯誤），這是正常的。系統設計為即使沒有外部 API 也能正常運作，只要資料庫中有資料即可。
+> **注意**：系統現在從本地 XML 檔案讀取資料，不再依賴外部 API。只要 XML 檔案中有資料，圖表就會正常顯示。
 
 ## 資料庫設定
 

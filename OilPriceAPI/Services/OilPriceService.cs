@@ -30,50 +30,51 @@ public class OilPriceService
     {
         try
         {
-            // CPC API: Fetch data for each product type (1=92, 2=95, 3=98, 4=diesel)
-            var productIds = new[] { "1", "2", "3", "4" };
-            var productNames = new Dictionary<string, string>
+            // Read from local XML files instead of API
+            var xmlFiles = new Dictionary<string, string>
             {
-                { "1", "92無鉛汽油" },
-                { "2", "95無鉛汽油" },
-                { "3", "98無鉛汽油" },
-                { "4", "超級柴油" }
+                { "92無鉛汽油", "Data/oil-price-92.xml" },
+                { "95無鉛汽油", "Data/oil-price-95.xml" },
+                { "98無鉛汽油", "Data/oil-price-98.xml" },
+                { "超級柴油", "Data/oil-price-diesel.xml" }
             };
 
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OilPriceContext>();
-            var client = _httpClientFactory.CreateClient();
 
-            foreach (var prodId in productIds)
+            foreach (var kvp in xmlFiles)
             {
+                var fuelType = kvp.Key;
+                var xmlPath = kvp.Value;
+
                 try
                 {
-                    // Make HTTP GET request to CPC API
-                    var requestUrl = $"{_apiUrl}?prodid={prodId}";
-                    _logger.LogInformation($"Fetching CPC oil prices for product {prodId} ({productNames[prodId]})");
+                    _logger.LogInformation($"Loading oil prices from {xmlPath} for {fuelType}");
                     
-                    var response = await client.GetAsync(requestUrl);
-                    
-                    if (!response.IsSuccessStatusCode)
+                    // Check if file exists
+                    if (!File.Exists(xmlPath))
                     {
-                        _logger.LogError($"Failed to fetch oil prices for product {prodId}. Status: {response.StatusCode}");
+                        _logger.LogWarning($"XML file not found: {xmlPath}. Skipping {fuelType}.");
                         continue;
                     }
 
-                    var xmlResponse = await response.Content.ReadAsStringAsync();
+                    // Read XML file
+                    var xmlContent = await File.ReadAllTextAsync(xmlPath);
+                    var xdoc = XDocument.Parse(xmlContent);
                     
-                    // Parse XML response
-                    var xdoc = XDocument.Parse(xmlResponse);
+                    // Parse CPC XML format with namespaces
+                    // Format: <DataSet><diffgr:diffgram><NewDataSet><tbTable><牌價生效時間>...</牌價生效時間><產品名>...</產品名><參考牌價>...</參考牌價></tbTable>...
+                    XNamespace ns = "http://tmtd.cpc.com.tw/";
+                    XNamespace diffgr = "urn:schemas-microsoft-com:xml-diffgram-v1";
                     
-                    // Extract data from XML structure
-                    // Expected format: <ArrayOfMYType><MYType><EffectiveDate>...</EffectiveDate><ReferencePriceNT>...</ReferencePriceNT></MYType>...</ArrayOfMYType>
-                    var ns = xdoc.Root?.GetDefaultNamespace() ?? XNamespace.None;
-                    var dataElements = xdoc.Descendants(ns + "MYType");
-
+                    var dataElements = xdoc.Descendants("tbTable");
+                    
+                    int recordCount = 0;
                     foreach (var element in dataElements)
                     {
-                        var dateStr = element.Element(ns + "EffectiveDate")?.Value;
-                        var priceStr = element.Element(ns + "ReferencePriceNT")?.Value;
+                        var dateStr = element.Element("牌價生效時間")?.Value;
+                        var priceStr = element.Element("參考牌價")?.Value;
+                        var productName = element.Element("產品名")?.Value;
 
                         if (string.IsNullOrEmpty(dateStr) || string.IsNullOrEmpty(priceStr))
                             continue;
@@ -82,9 +83,10 @@ public class OilPriceService
                         if (!DateTime.TryParse(dateStr, out var priceDate))
                             continue;
 
-                        // Filter by date range
-                        if (priceDate < startDate || priceDate > endDate)
-                            continue;
+                        // Filter by date range (optional - you can remove this to load all data)
+                        // Commented out to load all historical data from XML
+                        // if (priceDate < startDate || priceDate > endDate)
+                        //     continue;
 
                         // Parse price
                         if (!decimal.TryParse(priceStr, out var price))
@@ -95,7 +97,7 @@ public class OilPriceService
                         {
                             Date = priceDate.Date,
                             Company = "中油",
-                            FuelType = productNames[prodId],
+                            FuelType = fuelType,
                             Price = price,
                             CreatedAt = DateTime.Now
                         };
@@ -109,6 +111,7 @@ public class OilPriceService
                         if (existing == null)
                         {
                             context.OilPrices.Add(oilPrice);
+                            recordCount++;
                         }
                         else
                         {
@@ -117,23 +120,22 @@ public class OilPriceService
                         }
                     }
 
-                    _logger.LogInformation($"Processed {dataElements.Count()} records for product {prodId}");
+                    _logger.LogInformation($"Loaded {recordCount} new records from {xmlPath}");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error processing product {prodId}: {ex.Message}");
+                    _logger.LogError($"Error processing {xmlPath}: {ex.Message}");
                     continue;
                 }
-
             }
 
             await context.SaveChangesAsync();
-            _logger.LogInformation($"Successfully fetched and saved CPC oil prices from {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}");
+            _logger.LogInformation($"Successfully loaded CPC oil prices from local XML files");
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching and saving oil prices");
+            _logger.LogError(ex, "Error loading oil prices from XML files");
             return false;
         }
     }
