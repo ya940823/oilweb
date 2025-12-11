@@ -139,12 +139,22 @@ public class OilPricesController : ControllerBase
     [HttpGet("statistics")]
     public async Task<ActionResult> GetStatistics([FromQuery] int days = 30)
     {
-        var endDate = DateTime.Today;
-        var startDate = endDate.AddDays(-days);
-
-        var prices = await _context.OilPrices
-            .Where(p => p.Date >= startDate && p.Date <= endDate && p.Company == "中油")
-            .ToListAsync();
+        // If days is 0 or negative, load all historical data
+        List<OilPrice> prices;
+        if (days <= 0)
+        {
+            prices = await _context.OilPrices
+                .Where(p => p.Company == "中油")
+                .ToListAsync();
+        }
+        else
+        {
+            var endDate = DateTime.Today;
+            var startDate = endDate.AddDays(-days);
+            prices = await _context.OilPrices
+                .Where(p => p.Date >= startDate && p.Date <= endDate && p.Company == "中油")
+                .ToListAsync();
+        }
 
         if (!prices.Any())
         {

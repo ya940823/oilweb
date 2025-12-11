@@ -4,8 +4,8 @@ let currentDays = 30;
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadLatestPrices();
-    loadChart(30);
-    loadStatistics(30);
+    loadChart(0); // 0 means load all historical data
+    loadStatistics(0); // 0 means calculate statistics from all historical data
 });
 
 // Seed sample data function
@@ -105,6 +105,7 @@ async function loadChart(days) {
     currentDays = days;
     
     try {
+        // Always fetch all historical data (days parameter ignored on server side)
         const response = await fetch(`${API_BASE_URL}/history-with-predictions?days=${days}`);
         if (!response.ok) {
             console.error('Failed to load chart data');
@@ -115,14 +116,6 @@ async function loadChart(days) {
         
         // Draw chart using canvas
         drawChart(data);
-        
-        // Update button states
-        document.querySelectorAll('.btn-group button').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.textContent.includes(days + '天')) {
-                btn.classList.add('active');
-            }
-        });
         
     } catch (error) {
         console.error('Error loading chart:', error);
@@ -186,7 +179,8 @@ function drawChart(data) {
     ctx.fillStyle = '#333';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText(`油價走勢圖（最近${currentDays}天 + 未來30天預測）`, canvas.width / 2, 30);
+    const historicalCount = data.filter(d => !d.isPrediction).length;
+    ctx.fillText(`油價走勢圖（${historicalCount}天歷史資料 + 30天預測）`, canvas.width / 2, 30);
     
     // Find index where predictions start
     const firstPredictionIndex = data.findIndex(d => d.isPrediction);

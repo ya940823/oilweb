@@ -117,13 +117,11 @@
         <!-- Chart Controls -->
         <div class="row mb-3">
             <div class="col-12">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-outline-primary" onclick="loadChart(7)">7天</button>
-                    <button type="button" class="btn btn-outline-primary active" onclick="loadChart(30)">30天</button>
-                    <button type="button" class="btn btn-outline-primary" onclick="loadChart(90)">90天</button>
+                <div class="alert alert-success mb-0">
+                    <strong>📊 圖表說明：</strong> 顯示所有歷史油價資料（實線）+ 未來30天預測（虛線）
                 </div>
-                <button type="button" class="btn btn-success float-end" onclick="window.location.reload()">
-                    🔄 重新載入
+                <button type="button" class="btn btn-success float-end mt-2" onclick="window.location.reload()">
+                    🔄 更新資料
                 </button>
             </div>
         </div>
@@ -142,7 +140,7 @@
         <!-- Statistics -->
         <div class="row mb-4" id="statistics">
             <div class="col-12">
-                <h4>統計資訊（最近30天）</h4>
+                <h4>統計資訊（所有歷史資料）</h4>
             </div>
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card">

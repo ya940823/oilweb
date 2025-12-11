@@ -145,11 +145,10 @@ public class OilPriceService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<OilPriceContext>();
 
-        var endDate = DateTime.Today;
-        var startDate = endDate.AddDays(-days);
-
+        // Load ALL historical data from database (no date filtering)
+        // This allows users to see all data from XML files
         var historicalPrices = await context.OilPrices
-            .Where(p => p.Date >= startDate && p.Date <= endDate && p.Company == "中油")
+            .Where(p => p.Company == "中油")
             .OrderBy(p => p.Date)
             .ToListAsync();
 
