@@ -61,17 +61,28 @@ dotnet restore
 dotnet run
 ```
 
-5. **新增範例資料**（重要！）
+5. **新增範例資料**（**必須！**）
 
-由於政府 API 可能無法訪問或需要有效的 API 金鑰，建議先新增範例資料：
+⚠️ **首次執行時資料庫是空的，圖表將無法顯示。請先新增範例資料：**
+
+**方法 1 - 使用腳本（最簡單）：**
+
+Linux/Mac:
 ```bash
-# 在 OilPriceAPI 目錄中執行
-sqlite3 oilprice.db << 'EOF'
--- 貼上 SAMPLE_DATA.md 中的 SQL 腳本
-EOF
+./setup-sample-data.sh
 ```
 
-或直接參考 `SAMPLE_DATA.md` 檔案中的完整指令。
+Windows:
+```batch
+setup-sample-data.bat
+```
+
+**方法 2 - 手動執行 SQL：**
+```bash
+sqlite3 oilprice.db < SAMPLE_DATA.md
+```
+
+這將新增 36 筆範例資料（2025年10月至12月的油價）。
 
 6. **瀏覽網站**
 開啟瀏覽器前往 `http://localhost:5000`
