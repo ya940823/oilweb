@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using OilPriceAPI.Data;
 using OilPriceAPI.Models;
@@ -21,7 +22,7 @@ public class OilPriceService
         _scopeFactory = scopeFactory;
         _logger = logger;
         _configuration = configuration;
-        _apiUrl = _configuration["OilPriceApi:Url"] ?? "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/93aba44236ca/pub_93aba848a466";
+        _apiUrl = _configuration["OilPriceApi:Url"] ?? "https://vipmbr.cpc.com.tw/cpcstn/listpricewebservice.asmx/getCPCMainProdListPrice_Historical";
         _apiKey = _configuration["OilPriceApi:ApiKey"] ?? "";
     }
 
@@ -29,135 +30,105 @@ public class OilPriceService
     {
         try
         {
-            var client = _httpClientFactory.CreateClient();
-            if (!string.IsNullOrEmpty(_apiKey))
+            // CPC API: Fetch data for each product type (1=92, 2=95, 3=98, 4=diesel)
+            var productIds = new[] { "1", "2", "3", "4" };
+            var productNames = new Dictionary<string, string>
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"API{_apiKey}");
-            }
-
-            var requestBody = new
-            {
-                start = startDate.ToString("yyyy-MM-dd"),
-                end = endDate.ToString("yyyy-MM-dd")
+                { "1", "92無鉛汽油" },
+                { "2", "95無鉛汽油" },
+                { "3", "98無鉛汽油" },
+                { "4", "超級柴油" }
             };
-
-            var content = new StringContent(
-                JsonSerializer.Serialize(requestBody),
-                Encoding.UTF8,
-                "application/json"
-            );
-
-            var response = await client.PostAsync(_apiUrl, content);
-            
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogError($"Failed to fetch oil prices. Status: {response.StatusCode}");
-                return false;
-            }
-
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            
-            // Check if response contains an error
-            using (JsonDocument doc = JsonDocument.Parse(jsonResponse))
-            {
-                var root = doc.RootElement;
-                
-                // Check for error response formats:
-                // Format 1: {"status": xxx, "error_msg": "..."}
-                // Format 2: {"status": xxx, "error": {"code": "...", "msg": "..."}}
-                if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("status", out var statusProp))
-                {
-                    string? errorMsg = null;
-                    
-                    // Try format 1: error_msg field
-                    if (root.TryGetProperty("error_msg", out var errorMsgProp))
-                    {
-                        errorMsg = errorMsgProp.GetString();
-                    }
-                    // Try format 2: error object with msg field
-                    else if (root.TryGetProperty("error", out var errorObj) && errorObj.ValueKind == JsonValueKind.Object)
-                    {
-                        if (errorObj.TryGetProperty("msg", out var msgProp))
-                        {
-                            errorMsg = msgProp.GetString();
-                        }
-                        if (errorObj.TryGetProperty("code", out var codeProp))
-                        {
-                            var code = codeProp.GetString();
-                            errorMsg = $"[{code}] {errorMsg}";
-                        }
-                    }
-                    
-                    if (!string.IsNullOrEmpty(errorMsg))
-                    {
-                        var status = statusProp.GetInt32();
-                        _logger.LogError($"API returned error (status {status}): {errorMsg}");
-                        return false;
-                    }
-                }
-            }
-            
-            // Try to deserialize as success format
-            Dictionary<string, Dictionary<string, List<Dictionary<string, JsonElement>>>>? oilPriceData;
-            try
-            {
-                oilPriceData = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, List<Dictionary<string, JsonElement>>>>>(jsonResponse);
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError($"Failed to deserialize API response: {ex.Message}. Response: {jsonResponse.Substring(0, Math.Min(200, jsonResponse.Length))}...");
-                return false;
-            }
-
-            if (oilPriceData == null)
-            {
-                _logger.LogError("Failed to deserialize oil price data - result was null");
-                return false;
-            }
 
             using var scope = _scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<OilPriceContext>();
+            var client = _httpClientFactory.CreateClient();
 
-            foreach (var dateEntry in oilPriceData)
+            foreach (var prodId in productIds)
             {
-                if (!DateTime.TryParse(dateEntry.Key, out var priceDate))
-                    continue;
-
-                foreach (var companyEntry in dateEntry.Value)
+                try
                 {
-                    var companyName = companyEntry.Key;
-                    var fuelPrices = companyEntry.Value;
-
-                    foreach (var fuelPrice in fuelPrices)
+                    // Make HTTP GET request to CPC API
+                    var requestUrl = $"{_apiUrl}?prodid={prodId}";
+                    _logger.LogInformation($"Fetching CPC oil prices for product {prodId} ({productNames[prodId]})");
+                    
+                    var response = await client.GetAsync(requestUrl);
+                    
+                    if (!response.IsSuccessStatusCode)
                     {
-                        if (fuelPrice.TryGetValue("title", out var titleElement) &&
-                            fuelPrice.TryGetValue("price", out var priceElement))
+                        _logger.LogError($"Failed to fetch oil prices for product {prodId}. Status: {response.StatusCode}");
+                        continue;
+                    }
+
+                    var xmlResponse = await response.Content.ReadAsStringAsync();
+                    
+                    // Parse XML response
+                    var xdoc = XDocument.Parse(xmlResponse);
+                    
+                    // Extract data from XML structure
+                    // Expected format: <ArrayOfMYType><MYType><EffectiveDate>...</EffectiveDate><ReferencePriceNT>...</ReferencePriceNT></MYType>...</ArrayOfMYType>
+                    var ns = xdoc.Root?.GetDefaultNamespace() ?? XNamespace.None;
+                    var dataElements = xdoc.Descendants(ns + "MYType");
+
+                    foreach (var element in dataElements)
+                    {
+                        var dateStr = element.Element(ns + "EffectiveDate")?.Value;
+                        var priceStr = element.Element(ns + "ReferencePriceNT")?.Value;
+
+                        if (string.IsNullOrEmpty(dateStr) || string.IsNullOrEmpty(priceStr))
+                            continue;
+
+                        // Parse date
+                        if (!DateTime.TryParse(dateStr, out var priceDate))
+                            continue;
+
+                        // Filter by date range
+                        if (priceDate < startDate || priceDate > endDate)
+                            continue;
+
+                        // Parse price
+                        if (!decimal.TryParse(priceStr, out var price))
+                            continue;
+
+                        // Save to database
+                        var oilPrice = new OilPrice
                         {
-                            var title = titleElement.GetString();
-                            var price = priceElement.GetDecimal();
+                            Date = priceDate.Date,
+                            Company = "中油",
+                            FuelType = productNames[prodId],
+                            Price = price,
+                            CreatedAt = DateTime.Now
+                        };
 
-                            var existingPrice = await context.OilPrices
-                                .FirstOrDefaultAsync(p => p.Date == priceDate && 
-                                                         p.Company == companyName && 
-                                                         p.FuelType == title);
+                        // Check if record already exists
+                        var existing = await context.OilPrices
+                            .FirstOrDefaultAsync(p => p.Date.Date == oilPrice.Date.Date && 
+                                                     p.Company == oilPrice.Company && 
+                                                     p.FuelType == oilPrice.FuelType);
 
-                            if (existingPrice == null)
-                            {
-                                context.OilPrices.Add(new OilPrice
-                                {
-                                    Date = priceDate,
-                                    Company = companyName,
-                                    FuelType = title ?? "",
-                                    Price = price
-                                });
-                            }
+                        if (existing == null)
+                        {
+                            context.OilPrices.Add(oilPrice);
+                        }
+                        else
+                        {
+                            existing.Price = oilPrice.Price;
+                            existing.CreatedAt = DateTime.Now;
                         }
                     }
+
+                    _logger.LogInformation($"Processed {dataElements.Count()} records for product {prodId}");
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error processing product {prodId}: {ex.Message}");
+                    continue;
+                }
+
             }
 
             await context.SaveChangesAsync();
-            _logger.LogInformation($"Successfully fetched and saved oil prices from {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}");
+            _logger.LogInformation($"Successfully fetched and saved CPC oil prices from {startDate:yyyy-MM-dd} to {endDate:yyyy-MM-dd}");
             return true;
         }
         catch (Exception ex)

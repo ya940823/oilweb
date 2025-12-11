@@ -5,10 +5,10 @@
 ## 專案特色
 
 ### 🎯 核心功能
-- **政府 API 整合**：自動從政府開放資料平台擷取油價資料
+- **中油 API 整合**：自動從台灣中油官方 API 擷取歷史油價資料
 - **30 天預測**：使用線性迴歸預測未來油價走勢
 - **虛線視覺化**：圖表中歷史資料用實線、預測資料用虛線顯示
-- **自動更新**：每天 12:00 自動抓取最新油價
+- **自動更新**：每小時自動抓取最新油價
 - **RESTful API**：提供完整的 API 端點供查詢
 - **響應式介面**：支援各種裝置瀏覽
 
@@ -22,6 +22,7 @@
 - 背景服務每小時自動檢查新資料
 - 支援手動刷新：`POST /api/oilprices/refresh?days=90`
 - 首次啟動時自動載入 90 天歷史資料
+- 資料來源：台灣中油公司官方 API (vipmbr.cpc.com.tw)
 
 ## 安裝與執行
 
@@ -37,19 +38,15 @@ git clone https://github.com/ya940823/oilweb.git
 cd oilweb/OilPriceAPI
 ```
 
-2. **設定 API 金鑰**
+2. **API 設定**
 
-複製範例設定檔：
-```bash
-cp appsettings.Development.json.example appsettings.Development.json
-```
-
-編輯 `appsettings.Development.json`，填入你的 API 金鑰：
+系統已預設使用台灣中油官方 API，無需額外設定 API 金鑰。
+API 端點已設定為：
 ```json
 {
   "OilPriceApi": {
-    "Url": "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/93aba44236ca/pub_93aba848a466",
-    "ApiKey": "YOUR_API_KEY_HERE"
+    "Url": "https://vipmbr.cpc.com.tw/cpcstn/listpricewebservice.asmx/getCPCMainProdListPrice_Historical",
+    "ApiKey": ""
   }
 }
 ```
