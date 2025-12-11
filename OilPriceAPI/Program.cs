@@ -21,8 +21,18 @@ builder.Services.AddCors(options =>
 });
 
 // Add database context
-builder.Services.AddDbContext<OilPriceContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (connectionString?.Contains("localdb") == true || connectionString?.Contains("Server") == true)
+{
+    builder.Services.AddDbContext<OilPriceContext>(options =>
+        options.UseSqlServer(connectionString));
+}
+else
+{
+    // Use SQLite as fallback for testing/development
+    builder.Services.AddDbContext<OilPriceContext>(options =>
+        options.UseSqlite("Data Source=oilprice.db"));
+}
 
 // Add HttpClient
 builder.Services.AddHttpClient();

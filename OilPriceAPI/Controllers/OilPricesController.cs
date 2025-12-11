@@ -25,15 +25,15 @@ public class OilPricesController : ControllerBase
     [HttpGet("latest")]
     public async Task<ActionResult<OilPriceDto>> GetLatest()
     {
-        var latestDate = await _context.OilPrices.MaxAsync(p => p.Date);
-        var latestPrices = await _context.OilPrices
-            .Where(p => p.Date == latestDate && p.Company == "中油")
-            .ToListAsync();
-
-        if (!latestPrices.Any())
+        var allPrices = await _context.OilPrices.Where(p => p.Company == "中油").ToListAsync();
+        
+        if (!allPrices.Any())
         {
             return NotFound();
         }
+
+        var latestDate = allPrices.Max(p => p.Date);
+        var latestPrices = allPrices.Where(p => p.Date == latestDate).ToList();
 
         var result = new OilPriceDto
         {
