@@ -117,14 +117,20 @@ function filterByWeeks(weeks) {
         const firstPredictionIndex = allChartData.findIndex(d => d.isPrediction);
         
         if (firstPredictionIndex === -1) {
-            // No predictions, just filter historical
-            const filteredData = allChartData.slice(Math.max(0, allChartData.length - daysToShow));
+            // No predictions, just filter historical by date
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToShow);
+            const filteredData = allChartData.filter(d => new Date(d.date) >= cutoffDate);
             drawChart(filteredData);
         } else {
-            // Get last N weeks of historical + all predictions
+            // Get last N weeks of historical by date + all predictions
             const historicalData = allChartData.slice(0, firstPredictionIndex);
             const predictionData = allChartData.slice(firstPredictionIndex);
-            const filteredHistorical = historicalData.slice(Math.max(0, historicalData.length - daysToShow));
+            
+            // Filter historical by date (not by count)
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToShow);
+            const filteredHistorical = historicalData.filter(d => new Date(d.date) >= cutoffDate);
             const filteredData = [...filteredHistorical, ...predictionData];
             drawChart(filteredData);
         }
@@ -487,7 +493,7 @@ async function queryPrediction() {
 // Load 10 liter price comparison with last week
 async function load10LiterComparison() {
     try {
-        const response = await fetch(`${API_BASE_URL}/history?days=14`);
+        const response = await fetch(`${API_BASE_URL}/history?days=0`); // Get all data
         if (!response.ok) {
             console.error('Failed to load comparison data');
             return;
@@ -495,14 +501,36 @@ async function load10LiterComparison() {
         
         const data = await response.json();
         
-        if (data.length < 8) {
+        if (data.length < 2) {
             // Not enough data to compare
             return;
         }
         
-        // Get data from 7 days ago (last week)
-        const lastWeekData = data[Math.max(0, data.length - 8)];
+        // Find data from exactly 7 days ago
+        const today = new Date();
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+        
+        // Get today's data (most recent)
         const currentData = data[data.length - 1];
+        
+        // Find the data point closest to 7 days ago
+        let lastWeekData = null;
+        let minDiff = Infinity;
+        
+        for (const item of data) {
+            const itemDate = new Date(item.date);
+            const diff = Math.abs(itemDate - sevenDaysAgo);
+            if (diff < minDiff) {
+                minDiff = diff;
+                lastWeekData = item;
+            }
+        }
+        
+        if (!lastWeekData) {
+            // Fallback: use second-to-last data point
+            lastWeekData = data[data.length - 2];
+        }
         
         // Calculate difference per 10 liters
         const diff92 = (currentData.price92 - lastWeekData.price92) * 10;
