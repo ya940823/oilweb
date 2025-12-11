@@ -1,5 +1,7 @@
 const API_BASE_URL = '/api/oilprices';
 let currentDays = 30;
+let allChartData = []; // Store all data for filtering
+let currentWeeksFilter = 0; // 0 means show all data
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -100,6 +102,33 @@ function updatePriceChange(elementId, previousPrice, currentPrice) {
     }
 }
 
+// Filter chart by weeks
+function filterByWeeks(weeks) {
+    currentWeeksFilter = parseInt(weeks);
+    
+    if (currentWeeksFilter === 0 || allChartData.length === 0) {
+        // Show all data
+        drawChart(allChartData);
+    } else {
+        // Filter to last N weeks of historical data + all predictions
+        const daysToShow = currentWeeksFilter * 7;
+        const firstPredictionIndex = allChartData.findIndex(d => d.isPrediction);
+        
+        if (firstPredictionIndex === -1) {
+            // No predictions, just filter historical
+            const filteredData = allChartData.slice(Math.max(0, allChartData.length - daysToShow));
+            drawChart(filteredData);
+        } else {
+            // Get last N weeks of historical + all predictions
+            const historicalData = allChartData.slice(0, firstPredictionIndex);
+            const predictionData = allChartData.slice(firstPredictionIndex);
+            const filteredHistorical = historicalData.slice(Math.max(0, historicalData.length - daysToShow));
+            const filteredData = [...filteredHistorical, ...predictionData];
+            drawChart(filteredData);
+        }
+    }
+}
+
 // Load chart with historical data and predictions
 async function loadChart(days) {
     currentDays = days;
@@ -113,9 +142,13 @@ async function loadChart(days) {
         }
         
         const data = await response.json();
+        allChartData = data; // Store for filtering
         
         // Draw chart using canvas
         drawChart(data);
+        
+        // Setup hover interaction
+        setupChartHover();
         
     } catch (error) {
         console.error('Error loading chart:', error);
@@ -138,6 +171,16 @@ function drawChart(data) {
     const allPrices = data.flatMap(d => [d.price92, d.price95, d.price98, d.priceDiesel]);
     const minPrice = Math.floor(Math.min(...allPrices) - 1);
     const maxPrice = Math.ceil(Math.max(...allPrices) + 1);
+    
+    // Store chart data for hover detection
+    window.currentChartData = {
+        data: data,
+        padding: padding,
+        chartWidth: chartWidth,
+        chartHeight: chartHeight,
+        minPrice: minPrice,
+        maxPrice: maxPrice
+    };
     
     // Helper functions
     function getX(index) {
@@ -301,6 +344,136 @@ async function loadStatistics(days) {
     } catch (error) {
         console.error('Error loading statistics:', error);
     }
+}
+
+// Setup chart hover interaction
+function setupChartHover() {
+    const canvas = document.getElementById('priceChart');
+    const tooltip = document.getElementById('chartTooltip');
+    
+    canvas.addEventListener('mousemove', function(e) {
+        if (!window.currentChartData) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const { data, padding, chartWidth, chartHeight, minPrice, maxPrice } = window.currentChartData;
+        
+        // Check if mouse is within chart area
+        if (mouseX < padding || mouseX > padding + chartWidth ||
+            mouseY < padding || mouseY > padding + chartHeight) {
+            tooltip.style.display = 'none';
+            return;
+        }
+        
+        // Find nearest data point
+        const relativeX = (mouseX - padding) / chartWidth;
+        const dataIndex = Math.round(relativeX * (data.length - 1));
+        
+        if (dataIndex < 0 || dataIndex >= data.length) {
+            tooltip.style.display = 'none';
+            return;
+        }
+        
+        const point = data[dataIndex];
+        
+        // Find which fuel type is closest to mouse Y
+        const fuelTypes = [
+            { key: 'price92', label: '92無鉛', price: point.price92 },
+            { key: 'price95', label: '95無鉛', price: point.price95 },
+            { key: 'price98', label: '98無鉛', price: point.price98 },
+            { key: 'priceDiesel', label: '超級柴油', price: point.priceDiesel }
+        ];
+        
+        let closestFuel = fuelTypes[0];
+        let minDistance = Infinity;
+        
+        fuelTypes.forEach(fuel => {
+            const y = padding + chartHeight - ((fuel.price - minPrice) / (maxPrice - minPrice)) * chartHeight;
+            const distance = Math.abs(y - mouseY);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestFuel = fuel;
+            }
+        });
+        
+        // Show tooltip
+        const date = new Date(point.date);
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        const typeStr = point.isPrediction ? '預測值' : '實際值';
+        
+        tooltip.innerHTML = `${dateStr}<br>${closestFuel.label}: $${closestFuel.price.toFixed(1)} (${typeStr})`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (mouseX + 15) + 'px';
+        tooltip.style.top = (mouseY - 15) + 'px';
+    });
+    
+    canvas.addEventListener('mouseleave', function() {
+        tooltip.style.display = 'none';
+    });
+}
+
+// Query price prediction
+async function queryPrediction() {
+    const weeks = parseInt(document.getElementById('futureWeek').value);
+    const fuelType = document.getElementById('fuelTypeSelect').value;
+    
+    if (isNaN(weeks) || weeks < 1 || weeks > 4) {
+        alert('請輸入1-4之間的週數');
+        return;
+    }
+    
+    // Calculate target date (weeks * 7 days from today)
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + (weeks * 7));
+    
+    // Find prediction from chart data
+    if (!allChartData || allChartData.length === 0) {
+        alert('無法獲取預測資料，請先載入圖表');
+        return;
+    }
+    
+    // Find the prediction data point closest to target date
+    const targetTime = targetDate.getTime();
+    let closestPoint = null;
+    let minDiff = Infinity;
+    
+    allChartData.filter(d => d.isPrediction).forEach(point => {
+        const pointTime = new Date(point.date).getTime();
+        const diff = Math.abs(pointTime - targetTime);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestPoint = point;
+        }
+    });
+    
+    if (!closestPoint) {
+        alert('無法找到對應的預測資料');
+        return;
+    }
+    
+    // Display result
+    const fuelLabels = {
+        'price92': '92無鉛',
+        'price95': '95無鉛',
+        'price98': '98無鉛',
+        'priceDiesel': '超級柴油'
+    };
+    
+    const predictedPrice = closestPoint[fuelType];
+    const dateStr = new Date(closestPoint.date).toLocaleDateString('zh-TW');
+    
+    document.getElementById('predictionTableBody').innerHTML = `
+        <tr>
+            <td>第 ${weeks} 週</td>
+            <td>${dateStr}</td>
+            <td>${fuelLabels[fuelType]}</td>
+            <td class="fw-bold text-primary">$${predictedPrice.toFixed(1)}</td>
+        </tr>
+    `;
+    
+    document.getElementById('predictionResult').style.display = 'block';
 }
 
 // Export data to CSV

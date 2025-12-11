@@ -118,11 +118,24 @@
         <div class="row mb-3">
             <div class="col-12">
                 <div class="alert alert-success mb-0">
-                    <strong>📊 圖表說明：</strong> 顯示所有歷史油價資料（實線）+ 未來30天預測（虛線）
+                    <strong>📊 圖表說明：</strong> 顯示所有歷史油價資料（實線）+ 未來30天預測（虛線）。滑鼠移到圖表上可查看詳細數值。
                 </div>
-                <button type="button" class="btn btn-success float-end mt-2" onclick="window.location.reload()">
-                    🔄 更新資料
-                </button>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div>
+                        <label for="weekSelector" class="me-2">顯示週數：</label>
+                        <select id="weekSelector" class="form-select form-select-sm d-inline-block" style="width: auto;" onchange="filterByWeeks(this.value)">
+                            <option value="4">4週</option>
+                            <option value="8">8週</option>
+                            <option value="12">12週</option>
+                            <option value="26">26週</option>
+                            <option value="52">52週</option>
+                            <option value="0" selected>全部資料</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="window.location.reload()">
+                        🔄 更新資料
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -130,8 +143,58 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" style="position: relative;">
                         <canvas id="priceChart" width="1100" height="400"></canvas>
+                        <div id="chartTooltip" style="position: absolute; display: none; background-color: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; z-index: 1000;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price Prediction Tool -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">🔮 油價預測查詢</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-4 mb-3">
+                                <label for="futureWeek" class="form-label">未來第幾週：</label>
+                                <input type="number" class="form-control" id="futureWeek" min="1" max="4" value="1" placeholder="輸入1-4">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="fuelTypeSelect" class="form-label">油品類型：</label>
+                                <select class="form-select" id="fuelTypeSelect">
+                                    <option value="price92">92無鉛</option>
+                                    <option value="price95">95無鉛</option>
+                                    <option value="price98">98無鉛</option>
+                                    <option value="priceDiesel">超級柴油</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <button type="button" class="btn btn-primary w-100" onclick="queryPrediction()">
+                                    🔍 查詢預測
+                                </button>
+                            </div>
+                        </div>
+                        <div id="predictionResult" style="display: none;">
+                            <hr>
+                            <h6 class="text-success">預測結果：</h6>
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr class="table-light">
+                                        <th>查詢週數</th>
+                                        <th>預測日期</th>
+                                        <th>油品類型</th>
+                                        <th>預測價格</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="predictionTableBody">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,6 +260,6 @@
         </footer>
     </div>
 
-    <script src="/js/chart-app.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
