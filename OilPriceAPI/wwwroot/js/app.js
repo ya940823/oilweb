@@ -222,8 +222,7 @@ function drawChart(data) {
     ctx.fillStyle = '#333';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    const historicalCount = data.filter(d => !d.isPrediction).length;
-    ctx.fillText(`油價走勢圖（${historicalCount}天歷史資料 + 30天預測）`, canvas.width / 2, 30);
+    ctx.fillText('油價走勢圖', canvas.width / 2, 30);
     
     // Find index where predictions start
     const firstPredictionIndex = data.findIndex(d => d.isPrediction);
