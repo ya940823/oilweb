@@ -51,7 +51,7 @@ async function loadLatestPrices() {
 }
 
 // Load chart
-async function loadChart(days) {
+async function loadChart(days, event) {
     try {
         const response = await fetch(`${API_BASE}/history?days=${days}`);
         const prices = await response.json();
@@ -130,10 +130,12 @@ async function loadChart(days) {
         });
 
         // Update active button
-        document.querySelectorAll('.card-header .btn-group button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
+        if (event) {
+            document.querySelectorAll('.card-header .btn-group button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
     } catch (error) {
         console.error('Error loading chart:', error);
     }

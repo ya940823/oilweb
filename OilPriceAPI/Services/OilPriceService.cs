@@ -154,5 +154,5 @@ public class OilPriceData
 public class FuelPrice
 {
     public string? Title { get; set; }
-    public decimal? Price { get; set; } // 設為 nullable，避免反序列化時值缺失的問題
+    public decimal? Price { get; set; }
 }
