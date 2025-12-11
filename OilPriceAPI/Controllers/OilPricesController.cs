@@ -202,4 +202,86 @@ public class OilPricesController : ControllerBase
         
         return StatusCode(500, new { message = "Failed to refresh data" });
     }
+
+    [HttpPost("seed-sample-data")]
+    public async Task<IActionResult> SeedSampleData()
+    {
+        _logger.LogInformation("Seeding sample data...");
+
+        var sampleData = new List<OilPrice>
+        {
+            // 2025-10-14
+            new OilPrice { Date = new DateTime(2025, 10, 14), Company = "中油", FuelType = "92無鉛汽油", Price = 28.5m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 14), Company = "中油", FuelType = "95無鉛汽油", Price = 30.0m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 14), Company = "中油", FuelType = "98無鉛汽油", Price = 32.0m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 14), Company = "中油", FuelType = "超級柴油", Price = 26.5m, CreatedAt = DateTime.Now },
+            // 2025-10-21
+            new OilPrice { Date = new DateTime(2025, 10, 21), Company = "中油", FuelType = "92無鉛汽油", Price = 28.7m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 21), Company = "中油", FuelType = "95無鉛汽油", Price = 30.2m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 21), Company = "中油", FuelType = "98無鉛汽油", Price = 32.2m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 21), Company = "中油", FuelType = "超級柴油", Price = 26.7m, CreatedAt = DateTime.Now },
+            // 2025-10-28
+            new OilPrice { Date = new DateTime(2025, 10, 28), Company = "中油", FuelType = "92無鉛汽油", Price = 28.9m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 28), Company = "中油", FuelType = "95無鉛汽油", Price = 30.4m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 28), Company = "中油", FuelType = "98無鉛汽油", Price = 32.4m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 10, 28), Company = "中油", FuelType = "超級柴油", Price = 26.9m, CreatedAt = DateTime.Now },
+            // 2025-11-04
+            new OilPrice { Date = new DateTime(2025, 11, 4), Company = "中油", FuelType = "92無鉛汽油", Price = 29.1m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 4), Company = "中油", FuelType = "95無鉛汽油", Price = 30.6m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 4), Company = "中油", FuelType = "98無鉛汽油", Price = 32.6m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 4), Company = "中油", FuelType = "超級柴油", Price = 27.1m, CreatedAt = DateTime.Now },
+            // 2025-11-11
+            new OilPrice { Date = new DateTime(2025, 11, 11), Company = "中油", FuelType = "92無鉛汽油", Price = 29.5m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 11), Company = "中油", FuelType = "95無鉛汽油", Price = 31.0m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 11), Company = "中油", FuelType = "98無鉛汽油", Price = 33.0m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 11), Company = "中油", FuelType = "超級柴油", Price = 27.5m, CreatedAt = DateTime.Now },
+            // 2025-11-18
+            new OilPrice { Date = new DateTime(2025, 11, 18), Company = "中油", FuelType = "92無鉛汽油", Price = 29.7m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 18), Company = "中油", FuelType = "95無鉛汽油", Price = 31.2m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 18), Company = "中油", FuelType = "98無鉛汽油", Price = 33.2m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 18), Company = "中油", FuelType = "超級柴油", Price = 27.7m, CreatedAt = DateTime.Now },
+            // 2025-11-25
+            new OilPrice { Date = new DateTime(2025, 11, 25), Company = "中油", FuelType = "92無鉛汽油", Price = 29.9m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 25), Company = "中油", FuelType = "95無鉛汽油", Price = 31.4m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 25), Company = "中油", FuelType = "98無鉛汽油", Price = 33.4m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 11, 25), Company = "中油", FuelType = "超級柴油", Price = 27.9m, CreatedAt = DateTime.Now },
+            // 2025-12-02
+            new OilPrice { Date = new DateTime(2025, 12, 2), Company = "中油", FuelType = "92無鉛汽油", Price = 30.1m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 12, 2), Company = "中油", FuelType = "95無鉛汽油", Price = 31.6m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 12, 2), Company = "中油", FuelType = "98無鉛汽油", Price = 33.6m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 12, 2), Company = "中油", FuelType = "超級柴油", Price = 28.1m, CreatedAt = DateTime.Now },
+            // 2025-12-09
+            new OilPrice { Date = new DateTime(2025, 12, 9), Company = "中油", FuelType = "92無鉛汽油", Price = 30.3m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 12, 9), Company = "中油", FuelType = "95無鉛汽油", Price = 31.8m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 12, 9), Company = "中油", FuelType = "98無鉛汽油", Price = 33.8m, CreatedAt = DateTime.Now },
+            new OilPrice { Date = new DateTime(2025, 12, 9), Company = "中油", FuelType = "超級柴油", Price = 28.3m, CreatedAt = DateTime.Now }
+        };
+
+        int addedCount = 0;
+        foreach (var price in sampleData)
+        {
+            // Check if this exact record already exists
+            var exists = await _context.OilPrices.AnyAsync(p => 
+                p.Date == price.Date && 
+                p.Company == price.Company && 
+                p.FuelType == price.FuelType);
+            
+            if (!exists)
+            {
+                _context.OilPrices.Add(price);
+                addedCount++;
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        _logger.LogInformation($"Sample data seeded: {addedCount} new records added");
+
+        var totalCount = await _context.OilPrices.CountAsync();
+
+        return Ok(new { 
+            message = "Sample data seeded successfully", 
+            newRecords = addedCount,
+            totalRecords = totalCount 
+        });
+    }
 }

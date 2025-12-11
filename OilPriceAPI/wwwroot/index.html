@@ -59,6 +59,21 @@
             </div>
         </div>
 
+        <!-- No Data Warning -->
+        <div class="row mb-4" id="noDataWarning" style="display: none;">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading">⚠️ 資料庫目前沒有資料</h5>
+                    <p>系統初次啟動時資料庫為空。請點擊下方按鈕新增範例資料（36筆記錄，包含10月至12月的油價資料）。</p>
+                    <hr>
+                    <button type="button" class="btn btn-warning btn-lg" onclick="seedSampleData()">
+                        📊 新增範例資料
+                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
         <!-- Latest Prices -->
         <div class="row mb-4" id="latestPrices">
             <div class="col-md-3 col-sm-6 mb-3">

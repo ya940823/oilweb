@@ -65,7 +65,18 @@ dotnet run
 
 ⚠️ **首次執行時資料庫是空的，圖表將無法顯示。請先新增範例資料：**
 
-**方法 1 - 使用腳本（最簡單）：**
+**方法 1 - 在網頁上點擊按鈕（最簡單！）：**
+
+開啟瀏覽器訪問 http://localhost:5000，如果資料庫為空，會看到黃色警告框，點擊「📊 新增範例資料」按鈕即可。
+
+**方法 2 - 使用 API 端點：**
+
+在新的終端視窗執行：
+```bash
+curl -X POST http://localhost:5000/api/oilprices/seed-sample-data
+```
+
+**方法 3 - 使用腳本（需要 sqlite3 工具）：**
 
 Linux/Mac:
 ```bash
@@ -77,7 +88,7 @@ Windows:
 setup-sample-data.bat
 ```
 
-**方法 2 - 手動執行 SQL：**
+**方法 4 - 手動執行 SQL：**
 ```bash
 sqlite3 oilprice.db < SAMPLE_DATA.md
 ```

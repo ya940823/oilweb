@@ -8,12 +8,53 @@ document.addEventListener('DOMContentLoaded', function() {
     loadStatistics(30);
 });
 
+// Seed sample data function
+async function seedSampleData() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 新增中...';
+    button.disabled = true;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/seed-sample-data`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to seed data');
+        }
+        
+        const result = await response.json();
+        
+        // Hide the warning
+        document.getElementById('noDataWarning').style.display = 'none';
+        
+        // Show success message
+        alert(`✅ 成功！\n新增 ${result.newRecords} 筆記錄\n資料庫總計 ${result.totalRecords} 筆記錄\n\n頁面即將自動重新載入...`);
+        
+        // Reload the page to show new data
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error seeding data:', error);
+        alert('❌ 新增範例資料失敗。請查看控制台了解詳情。');
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
+}
+
 // Load latest oil prices
 async function loadLatestPrices() {
     try {
         const response = await fetch(`${API_BASE_URL}/latest`);
         if (!response.ok) {
             console.error('Failed to load latest prices');
+            // Show no data warning if 404 (no data found)
+            if (response.status === 404) {
+                document.getElementById('noDataWarning').style.display = 'block';
+            }
             return;
         }
         
