@@ -19,7 +19,7 @@ OilWeb/
 
 ## 技術規格
 
-- **.NET Version**: .NET 10.0
+- **.NET Version**: .NET 9.0
 - **Framework**: ASP.NET Core Web API
 - **Features**:
   - RESTful API 架構
@@ -32,7 +32,7 @@ OilWeb/
 
 ### 前置需求
 
-- .NET 10.0 SDK 或更高版本
+- .NET 9.0 SDK 或更高版本
 
 ### 建置專案
 
