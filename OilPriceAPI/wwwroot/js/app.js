@@ -167,8 +167,10 @@ async function loadChart(days) {
         // Update button states
         document.querySelectorAll('.btn-group button').forEach(btn => {
             btn.classList.remove('active');
+            if (btn.textContent.includes(days + '天')) {
+                btn.classList.add('active');
+            }
         });
-        event?.target?.classList.add('active');
         
     } catch (error) {
         console.error('Error loading chart:', error);

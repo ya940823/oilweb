@@ -31,7 +31,7 @@ else
 {
     // Use SQLite as fallback for testing/development
     builder.Services.AddDbContext<OilPriceContext>(options =>
-        options.UseSqlite("Data Source=oilprice.db"));
+        options.UseSqlite(connectionString ?? "Data Source=oilprice.db"));
 }
 
 // Add HttpClient

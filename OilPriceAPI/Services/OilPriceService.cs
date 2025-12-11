@@ -11,14 +11,18 @@ public class OilPriceService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OilPriceService> _logger;
-    private const string API_URL = "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/93aba44236ca/pub_93aba848a466";
-    private const string API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjZXJ0IjoiNTlmODBiNzQ5NmYyNzNkNzcxYWU2ZmQ4MzI4ODNmYmZjMjVmMzA1NCIsImlhdCI6MTc2NTQ1NjQ1Mn0.iSCcukA1ryG_9lvX1YzfbCbDH5IkBynHuPhCYsU3oCE";
+    private readonly IConfiguration _configuration;
+    private readonly string _apiUrl;
+    private readonly string _apiKey;
 
-    public OilPriceService(IHttpClientFactory httpClientFactory, IServiceScopeFactory scopeFactory, ILogger<OilPriceService> logger)
+    public OilPriceService(IHttpClientFactory httpClientFactory, IServiceScopeFactory scopeFactory, ILogger<OilPriceService> logger, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _configuration = configuration;
+        _apiUrl = _configuration["OilPriceApi:Url"] ?? "https://superiorapis-creator.cteam.com.tw/manager/feature/proxy/93aba44236ca/pub_93aba848a466";
+        _apiKey = _configuration["OilPriceApi:ApiKey"] ?? "";
     }
 
     public async Task<bool> FetchAndSaveOilPricesAsync(DateTime startDate, DateTime endDate)
@@ -26,7 +30,10 @@ public class OilPriceService
         try
         {
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {API_KEY}");
+            if (!string.IsNullOrEmpty(_apiKey))
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+            }
 
             var requestBody = new
             {
@@ -40,7 +47,7 @@ public class OilPriceService
                 "application/json"
             );
 
-            var response = await client.PostAsync(API_URL, content);
+            var response = await client.PostAsync(_apiUrl, content);
             
             if (!response.IsSuccessStatusCode)
             {
