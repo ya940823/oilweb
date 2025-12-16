@@ -501,15 +501,15 @@ async function load10LiterComparison() {
         
         const data = await response.json();
         
-        if (data.length < 8) {
-            // Not enough data to compare (need at least 8 records for week comparison)
+        if (data.length < 2) {
+            // Not enough data to compare (need at least 2 records)
             return;
         }
         
-        // Use record-based comparison: compare last record with 7th-from-last record
-        // This is more reliable than date-based when data is not daily
-        const currentData = data[data.length - 1];
-        const lastWeekData = data[data.length - 8]; // 8th from end = 7 records ago (one week)
+        // Use record-based comparison: compare current record (latest) with previous record
+        // Since data is weekly, comparing with previous record = comparing with last week
+        const currentData = data[data.length - 1];        // Most recent record (this week)
+        const lastWeekData = data[data.length - 2];       // Previous record (last week)
         
 
         
