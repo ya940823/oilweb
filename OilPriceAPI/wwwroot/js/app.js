@@ -493,16 +493,19 @@ async function queryPrediction() {
 // Load 10 liter price comparison with last week
 async function load10LiterComparison() {
     try {
+        console.log('Loading 10L comparison data...');
         const response = await fetch(`${API_BASE_URL}/history?days=0`); // Get all data
         if (!response.ok) {
-            console.error('Failed to load comparison data');
+            console.error('Failed to load comparison data, status:', response.status);
             return;
         }
         
         const data = await response.json();
+        console.log('Loaded', data.length, 'records for comparison');
         
         if (data.length < 2) {
             // Not enough data to compare (need at least 2 records)
+            console.warn('Not enough data for comparison. Need at least 2 records, got', data.length);
             return;
         }
         
@@ -511,13 +514,16 @@ async function load10LiterComparison() {
         const currentData = data[data.length - 1];        // Most recent record (this week)
         const lastWeekData = data[data.length - 2];       // Previous record (last week)
         
-
+        console.log('Current week:', currentData);
+        console.log('Last week:', lastWeekData);
         
         // Calculate difference per 10 liters
         const diff92 = currentData.price92 && lastWeekData.price92 ? (currentData.price92 - lastWeekData.price92) * 10 : null;
         const diff95 = currentData.price95 && lastWeekData.price95 ? (currentData.price95 - lastWeekData.price95) * 10 : null;
         const diff98 = currentData.price98 && lastWeekData.price98 ? (currentData.price98 - lastWeekData.price98) * 10 : null;
         const diffDiesel = currentData.priceDiesel && lastWeekData.priceDiesel ? (currentData.priceDiesel - lastWeekData.priceDiesel) * 10 : null;
+        
+        console.log('Calculated differences - 92:', diff92, '95:', diff95, '98:', diff98, 'Diesel:', diffDiesel);
         
         // Update UI
         document.getElementById('compare92').innerHTML = diff92 !== null ? formatComparisonText(diff92) : '--';

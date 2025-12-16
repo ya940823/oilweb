@@ -51,12 +51,17 @@ public class OilPricesController : ControllerBase
     public async Task<ActionResult<List<OilPriceDto>>> GetHistory([FromQuery] int days = 30)
     {
         var endDate = DateTime.Today;
-        var startDate = endDate.AddDays(-days);
-
-        var prices = await _context.OilPrices
-            .Where(p => p.Date >= startDate && p.Date <= endDate && p.Company == "中油")
-            .OrderBy(p => p.Date)
-            .ToListAsync();
+        
+        // If days=0, return all historical data (no date filter)
+        IQueryable<OilPrice> query = _context.OilPrices.Where(p => p.Company == "中油");
+        
+        if (days > 0)
+        {
+            var startDate = endDate.AddDays(-days);
+            query = query.Where(p => p.Date >= startDate && p.Date <= endDate);
+        }
+        
+        var prices = await query.OrderBy(p => p.Date).ToListAsync();
 
         var result = prices
             .GroupBy(p => p.Date)
