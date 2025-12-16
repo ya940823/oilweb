@@ -533,16 +533,16 @@ async function load10LiterComparison() {
         }
         
         // Calculate difference per 10 liters
-        const diff92 = (currentData.price92 - lastWeekData.price92) * 10;
-        const diff95 = (currentData.price95 - lastWeekData.price95) * 10;
-        const diff98 = (currentData.price98 - lastWeekData.price98) * 10;
-        const diffDiesel = (currentData.priceDiesel - lastWeekData.priceDiesel) * 10;
+        const diff92 = currentData.price92 && lastWeekData.price92 ? (currentData.price92 - lastWeekData.price92) * 10 : null;
+        const diff95 = currentData.price95 && lastWeekData.price95 ? (currentData.price95 - lastWeekData.price95) * 10 : null;
+        const diff98 = currentData.price98 && lastWeekData.price98 ? (currentData.price98 - lastWeekData.price98) * 10 : null;
+        const diffDiesel = currentData.priceDiesel && lastWeekData.priceDiesel ? (currentData.priceDiesel - lastWeekData.priceDiesel) * 10 : null;
         
         // Update UI
-        document.getElementById('compare92').innerHTML = formatComparisonText(diff92);
-        document.getElementById('compare95').innerHTML = formatComparisonText(diff95);
-        document.getElementById('compare98').innerHTML = formatComparisonText(diff98);
-        document.getElementById('compareDiesel').innerHTML = formatComparisonText(diffDiesel);
+        document.getElementById('compare92').innerHTML = diff92 !== null ? formatComparisonText(diff92) : '--';
+        document.getElementById('compare95').innerHTML = diff95 !== null ? formatComparisonText(diff95) : '--';
+        document.getElementById('compare98').innerHTML = diff98 !== null ? formatComparisonText(diff98) : '--';
+        document.getElementById('compareDiesel').innerHTML = diffDiesel !== null ? formatComparisonText(diffDiesel) : '--';
         
     } catch (error) {
         console.error('Error loading 10L comparison:', error);

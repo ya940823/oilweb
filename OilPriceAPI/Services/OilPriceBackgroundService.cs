@@ -1,19 +1,31 @@
+using Microsoft.Extensions.Configuration;
+
 namespace OilPriceAPI.Services;
 
 public class OilPriceBackgroundService : BackgroundService
 {
     private readonly ILogger<OilPriceBackgroundService> _logger;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IConfiguration _configuration;
 
-    public OilPriceBackgroundService(ILogger<OilPriceBackgroundService> logger, IServiceProvider serviceProvider)
+    public OilPriceBackgroundService(ILogger<OilPriceBackgroundService> logger, IServiceProvider serviceProvider, IConfiguration configuration)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
+        _configuration = configuration;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Oil Price Background Service is starting.");
+
+        // Check if API calls are enabled
+        var enableApiCalls = _configuration.GetValue<bool>("OilPriceApi:EnableApiCalls", false);
+        
+        if (!enableApiCalls)
+        {
+            _logger.LogInformation("API calls are disabled. Background service will only load data from local XML files.");
+        }
 
         // Initial fetch of 90 days historical data on startup
         await FetchInitialDataAsync();

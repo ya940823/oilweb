@@ -28,6 +28,34 @@ public class OilPriceService
 
     public async Task<bool> FetchAndSaveOilPricesAsync(DateTime startDate, DateTime endDate)
     {
+        // Check if API calls are enabled
+        var enableApiCalls = _configuration.GetValue<bool>("OilPriceApi:EnableApiCalls", false);
+        
+        if (!enableApiCalls)
+        {
+            _logger.LogInformation("API calls are disabled. Loading data from local XML files only.");
+            return await LoadDataFromXmlFilesAsync(startDate, endDate);
+        }
+        else
+        {
+            _logger.LogInformation("API calls are enabled. Attempting to fetch from API first, falling back to XML if needed.");
+            // Try API first, fallback to XML if fails
+            try
+            {
+                // API call logic would go here (not implemented in this version)
+                _logger.LogWarning("API call feature not yet implemented. Falling back to XML files.");
+                return await LoadDataFromXmlFilesAsync(startDate, endDate);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "API call failed. Falling back to XML files.");
+                return await LoadDataFromXmlFilesAsync(startDate, endDate);
+            }
+        }
+    }
+
+    private async Task<bool> LoadDataFromXmlFilesAsync(DateTime startDate, DateTime endDate)
+    {
         try
         {
             // Read from local XML files instead of API
