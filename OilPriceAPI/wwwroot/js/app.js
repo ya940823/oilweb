@@ -501,36 +501,17 @@ async function load10LiterComparison() {
         
         const data = await response.json();
         
-        if (data.length < 2) {
-            // Not enough data to compare
+        if (data.length < 8) {
+            // Not enough data to compare (need at least 8 records for week comparison)
             return;
         }
         
-        // Find data from exactly 7 days ago
-        const today = new Date();
-        const sevenDaysAgo = new Date(today);
-        sevenDaysAgo.setDate(today.getDate() - 7);
-        
-        // Get today's data (most recent)
+        // Use record-based comparison: compare last record with 7th-from-last record
+        // This is more reliable than date-based when data is not daily
         const currentData = data[data.length - 1];
+        const lastWeekData = data[data.length - 8]; // 8th from end = 7 records ago (one week)
         
-        // Find the data point closest to 7 days ago
-        let lastWeekData = null;
-        let minDiff = Infinity;
-        
-        for (const item of data) {
-            const itemDate = new Date(item.date);
-            const diff = Math.abs(itemDate - sevenDaysAgo);
-            if (diff < minDiff) {
-                minDiff = diff;
-                lastWeekData = item;
-            }
-        }
-        
-        if (!lastWeekData) {
-            // Fallback: use second-to-last data point
-            lastWeekData = data[data.length - 2];
-        }
+
         
         // Calculate difference per 10 liters
         const diff92 = currentData.price92 && lastWeekData.price92 ? (currentData.price92 - lastWeekData.price92) * 10 : null;

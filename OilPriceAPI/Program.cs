@@ -59,11 +59,23 @@ app.UseStaticFiles();
 
 app.MapControllers();
 
-// Ensure database is created
+// Ensure database is created and load initial data from XML files
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<OilPriceContext>();
     context.Database.EnsureCreated();
+    
+    // On first run or when database is empty, load data from XML files into database
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    if (!context.OilPrices.Any())
+    {
+        logger.LogInformation("Database is empty. Loading initial data from XML files...");
+        var oilPriceService = scope.ServiceProvider.GetRequiredService<OilPriceService>();
+        var endDate = DateTime.Now;
+        var startDate = endDate.AddDays(-365); // Load last year of data
+        await oilPriceService.FetchAndSaveOilPricesAsync(startDate, endDate);
+        logger.LogInformation("Initial data loaded from XML files into database.");
+    }
 }
 
 app.Run();

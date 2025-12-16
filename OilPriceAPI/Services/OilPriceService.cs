@@ -59,6 +59,8 @@ public class OilPriceService
         try
         {
             // Read from local XML files instead of API
+            // Note: In production/web deployment, ensure Data folder is included in publish or
+            // data is pre-loaded into database during deployment
             var xmlFiles = new Dictionary<string, string>
             {
                 { "92無鉛汽油", "Data/oil-price-92.xml" },

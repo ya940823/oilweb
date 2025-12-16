@@ -16,4 +16,16 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Include XML data files in deployment for web hosting -->
+    <Content Include="Data\*.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Data\README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
