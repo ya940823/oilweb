@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DataSet xmlns="http://tmtd.cpc.com.tw/">
+  <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+    <NewDataSet>
+      <Table1 diffgr:id="Table11" msdata:rowOrder="0">
+        <參考日期>2025-12-10</參考日期>
+        <無鉛92>28.5</無鉛92>
+        <無鉛95>30.1</無鉛95>
+        <無鉛98>32.1</無鉛98>
+        <超級柴油>26.8</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table12" msdata:rowOrder="1">
+        <參考日期>2025-12-11</參考日期>
+        <無鉛92>28.6</無鉛92>
+        <無鉛95>30.2</無鉛95>
+        <無鉛98>32.2</無鉛98>
+        <超級柴油>26.9</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table13" msdata:rowOrder="2">
+        <參考日期>2025-12-12</參考日期>
+        <無鉛92>28.7</無鉛92>
+        <無鉛95>30.3</無鉛95>
+        <無鉛98>32.3</無鉛98>
+        <超級柴油>27.0</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table14" msdata:rowOrder="3">
+        <參考日期>2025-12-13</參考日期>
+        <無鉛92>28.8</無鉛92>
+        <無鉛95>30.4</無鉛95>
+        <無鉛98>32.4</無鉛98>
+        <超級柴油>27.1</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table15" msdata:rowOrder="4">
+        <參考日期>2025-12-14</參考日期>
+        <無鉛92>28.9</無鉛92>
+        <無鉛95>30.5</無鉛95>
+        <無鉛98>32.5</無鉛98>
+        <超級柴油>27.2</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table16" msdata:rowOrder="5">
+        <參考日期>2025-12-15</參考日期>
+        <無鉛92>29.0</無鉛92>
+        <無鉛95>30.6</無鉛95>
+        <無鉛98>32.6</無鉛98>
+        <超級柴油>27.3</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table17" msdata:rowOrder="6">
+        <參考日期>2025-12-16</參考日期>
+        <無鉛92>29.1</無鉛92>
+        <無鉛95>30.7</無鉛95>
+        <無鉛98>32.7</無鉛98>
+        <超級柴油>27.4</超級柴油>
+      </Table1>
+      <Table1 diffgr:id="Table18" msdata:rowOrder="7">
+        <參考日期>2025-12-17</參考日期>
+        <無鉛92>29.2</無鉛92>
+        <無鉛95>30.8</無鉛95>
+        <無鉛98>32.8</無鉛98>
+        <超級柴油>27.5</超級柴油>
+      </Table1>
+    </NewDataSet>
+  </diffgr:diffgram>
+</DataSet>
