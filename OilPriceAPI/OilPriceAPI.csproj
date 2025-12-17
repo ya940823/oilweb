@@ -27,10 +27,8 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
     
-    <!-- Ensure wwwroot content is included in publish -->
-    <Content Include="wwwroot\**\*">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    <!-- Note: wwwroot content is automatically included by ASP.NET Core SDK -->
+    <!-- No need to explicitly include wwwroot files -->
   </ItemGroup>
 
 </Project>
