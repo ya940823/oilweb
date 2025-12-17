@@ -54,17 +54,32 @@ namespace OilPriceAPI.Services
             
             foreach (var item in doc.Descendants("item"))
             {
-                var oilPrice = new OilPrice
+                try
                 {
-                    Date = DateTime.Parse(item.Element("Date")?.Value ?? DateTime.Now.ToString()),
-                    Oil92 = decimal.Parse(item.Element("Oil92")?.Value ?? "0"),
-                    Oil95 = decimal.Parse(item.Element("Oil95")?.Value ?? "0"),
-                    Oil98 = decimal.Parse(item.Element("Oil98")?.Value ?? "0"),
-                    Diesel = decimal.Parse(item.Element("Diesel")?.Value ?? "0"),
-                    Source = "XML"
-                };
-                
-                oilPrices.Add(oilPrice);
+                    var dateStr = item.Element("Date")?.Value;
+                    if (string.IsNullOrEmpty(dateStr) || !DateTime.TryParse(dateStr, out var date))
+                    {
+                        _logger.LogWarning("Skipping item with invalid or missing date");
+                        continue;
+                    }
+                    
+                    var oilPrice = new OilPrice
+                    {
+                        Date = date,
+                        Oil92 = decimal.TryParse(item.Element("Oil92")?.Value, out var oil92) ? oil92 : 0,
+                        Oil95 = decimal.TryParse(item.Element("Oil95")?.Value, out var oil95) ? oil95 : 0,
+                        Oil98 = decimal.TryParse(item.Element("Oil98")?.Value, out var oil98) ? oil98 : 0,
+                        Diesel = decimal.TryParse(item.Element("Diesel")?.Value, out var diesel) ? diesel : 0,
+                        Source = "XML"
+                    };
+                    
+                    oilPrices.Add(oilPrice);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error parsing item in simple format, skipping");
+                    continue;
+                }
             }
             
             return oilPrices;
@@ -119,15 +134,15 @@ namespace OilPriceAPI.Services
                     var oil98Str = oil98Element?.Value;
                     var dieselStr = dieselElement?.Value;
                     
-                    if (string.IsNullOrEmpty(dateStr))
+                    if (string.IsNullOrEmpty(dateStr) || !DateTime.TryParse(dateStr, out var date))
                     {
-                        _logger.LogWarning("Skipping Table1 record with no date");
+                        _logger.LogWarning("Skipping Table1 record with invalid or missing date");
                         continue;
                     }
                     
                     var oilPrice = new OilPrice
                     {
-                        Date = DateTime.Parse(dateStr),
+                        Date = date,
                         Oil92 = decimal.TryParse(oil92Str, out var oil92) ? oil92 : 0,
                         Oil95 = decimal.TryParse(oil95Str, out var oil95) ? oil95 : 0,
                         Oil98 = decimal.TryParse(oil98Str, out var oil98) ? oil98 : 0,
