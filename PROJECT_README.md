@@ -138,7 +138,9 @@ dotnet run
 
 ### 1. 上傳 XML 資料
 
-1. 準備 XML 檔案，格式如下：
+系統支援兩種 XML 格式：
+
+#### 格式一：簡單格式
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -154,17 +156,38 @@ dotnet run
 </OilPrices>
 ```
 
-2. 點擊「選擇檔案」按鈕
-3. 選擇 XML 檔案
-4. 點擊「上傳並解析」按鈕
-5. 系統會自動解析並儲存資料
+#### 格式二：中油 (CPC) DataSet 格式
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<DataSet xmlns="http://tmtd.cpc.com.tw/">
+  <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
+    <NewDataSet>
+      <Table1 diffgr:id="Table11" msdata:rowOrder="0">
+        <參考日期>2025-12-17</參考日期>
+        <無鉛92>29.2</無鉛92>
+        <無鉛95>30.8</無鉛95>
+        <無鉛98>32.8</無鉛98>
+        <超級柴油>27.5</超級柴油>
+      </Table1>
+      <!-- 更多資料... -->
+    </NewDataSet>
+  </diffgr:diffgram>
+</DataSet>
+```
+
+**上傳步驟：**
+1. 點擊「選擇檔案」按鈕
+2. 選擇 XML 檔案（支援上述兩種格式）
+3. 點擊「上傳並解析」按鈕
+4. 系統會自動識別格式並解析儲存資料
 
 ### 2. 查看油價資訊
 
 - **最新油價**: 首頁會顯示最新的四種油品價格
 - **統計資訊**: 顯示最近 30 天的統計數據
 - **走勢圖**: 可切換 7/30/90 天的價格趨勢
-- **歷史資料**: 完整的歷史資料表格
+- **歷史資料**: 完整的歷史資料表格，顯示資料來源（XML 或 CPC-XML）
 
 ## API 端點
 
