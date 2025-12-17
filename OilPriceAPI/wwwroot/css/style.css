@@ -1,0 +1,134 @@
+body {
+    font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: bold;
+}
+
+.price-card {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.price-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.price-card h6 {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.price-card h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.price-card .price-change {
+    margin-top: 8px;
+    font-size: 0.85rem;
+}
+
+.price-up {
+    color: #ff6b6b;
+}
+
+.price-down {
+    color: #51cf66;
+}
+
+.price-equal {
+    color: #ffd43b;
+}
+
+.stat-item {
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+}
+
+.stat-item h6 {
+    color: #495057;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.stat-item .stat-values {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.stat-item .stat-values div {
+    text-align: center;
+}
+
+.stat-item .stat-values div span {
+    display: block;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.stat-item .stat-values div strong {
+    display: block;
+    font-size: 1.1rem;
+    color: #212529;
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+#priceChart {
+    max-height: 400px;
+}
+
+table {
+    font-size: 0.9rem;
+}
+
+table thead {
+    background-color: #f8f9fa;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5;
+}
+
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+footer {
+    margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+    .price-card h3 {
+        font-size: 1.5rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+}
