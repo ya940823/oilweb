@@ -86,9 +86,9 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <button class="btn btn-sm btn-outline-primary" onclick="loadChartData(7)">7天</button>
-                                <button class="btn btn-sm btn-outline-primary active" onclick="loadChartData(30)">30天</button>
-                                <button class="btn btn-sm btn-outline-primary" onclick="loadChartData(90)">90天</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadChartData(7, this)">7天</button>
+                                <button class="btn btn-sm btn-outline-primary active" onclick="loadChartData(30, this)">30天</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadChartData(90, this)">90天</button>
                             </div>
                             <canvas id="priceChart" height="80"></canvas>
                         </div>
@@ -135,7 +135,7 @@
 
         <footer class="py-4 mt-4 border-top bg-light">
             <div class="container text-center">
-                <p class="text-muted mb-0">© 2024 台灣油價觀察系統 | Built with ASP.NET Core & SQL Server</p>
+                <p class="text-muted mb-0">© <span id="currentYear"></span> 台灣油價觀察系統 | Built with ASP.NET Core & SQL Server</p>
             </div>
         </footer>
     </div>

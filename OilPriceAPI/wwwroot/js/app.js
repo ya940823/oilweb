@@ -3,6 +3,9 @@ let priceChart = null;
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Set current year in footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
     loadLatestPrices();
     loadStatistics();
     loadChartData(30);
@@ -212,7 +215,7 @@ function displayStatistics(data) {
 }
 
 // Load chart data
-async function loadChartData(days) {
+async function loadChartData(days, clickedButton) {
     try {
         const response = await fetch(`${API_BASE_URL}/history?days=${days}`);
         
@@ -224,10 +227,12 @@ async function loadChartData(days) {
         displayChart(data);
         
         // Update button active state
-        document.querySelectorAll('.btn-outline-primary').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
+        if (clickedButton) {
+            document.querySelectorAll('.btn-outline-primary').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            clickedButton.classList.add('active');
+        }
     } catch (error) {
         console.error('Error loading chart:', error);
     }
