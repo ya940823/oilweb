@@ -20,8 +20,19 @@ builder.Services.AddCors(options =>
 });
 
 // Add database context
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<OilPriceContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    // Use SQLite if connection string looks like SQLite, otherwise SQL Server
+    if (connectionString != null && connectionString.Contains("Data Source="))
+    {
+        options.UseSqlite(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
 
 // Add services
 builder.Services.AddScoped<XmlParserService>();
@@ -43,8 +54,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-app.UseStaticFiles();
 app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();
