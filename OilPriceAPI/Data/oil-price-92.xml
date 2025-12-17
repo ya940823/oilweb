@@ -2,21 +2,72 @@
 <DataSet xmlns="http://tmtd.cpc.com.tw/">
   <diffgr:diffgram xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:diffgr="urn:schemas-microsoft-com:xml-diffgram-v1">
     <NewDataSet xmlns="">
-      <!-- Paste your 92 unleaded gasoline data here -->
-      <!-- Example format: (use the exact format from CPC API)
       <tbTable diffgr:id="tbTable1" msdata:roworder="0">
-        <牌價生效時間>1999-01-06T00:00:00+08:00</牌價生效時間>
+        <牌價生效時間>2024-10-07T00:00:00+08:00</牌價生效時間>
         <產品名>無鉛汽油92</產品名>
-        <參考牌價>15</參考牌價>
+        <參考牌價>30.0</參考牌價>
         <計價單位>元/公升</計價單位>
       </tbTable>
       <tbTable diffgr:id="tbTable2" msdata:roworder="1">
-        <牌價生效時間>1999-04-07T00:00:00+08:00</牌價生效時間>
+        <牌價生效時間>2024-10-14T00:00:00+08:00</牌價生效時間>
         <產品名>無鉛汽油92</產品名>
-        <參考牌價>15.3</參考牌價>
+        <參考牌價>30.1</參考牌價>
         <計價單位>元/公升</計價單位>
       </tbTable>
-      -->
+      <tbTable diffgr:id="tbTable3" msdata:roworder="2">
+        <牌價生效時間>2024-10-21T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>29.9</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable4" msdata:roworder="3">
+        <牌價生效時間>2024-10-28T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.2</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable5" msdata:roworder="4">
+        <牌價生效時間>2024-11-04T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.3</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable6" msdata:roworder="5">
+        <牌價生效時間>2024-11-11T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.4</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable7" msdata:roworder="6">
+        <牌價生效時間>2024-11-18T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.2</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable8" msdata:roworder="7">
+        <牌價生效時間>2024-11-25T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.5</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable9" msdata:roworder="8">
+        <牌價生效時間>2024-12-02T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.3</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable10" msdata:roworder="9">
+        <牌價生效時間>2024-12-09T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.6</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
+      <tbTable diffgr:id="tbTable11" msdata:roworder="10">
+        <牌價生效時間>2024-12-16T00:00:00+08:00</牌價生效時間>
+        <產品名>無鉛汽油92</產品名>
+        <參考牌價>30.4</參考牌價>
+        <計價單位>元/公升</計價單位>
+      </tbTable>
     </NewDataSet>
   </diffgr:diffgram>
 </DataSet>
