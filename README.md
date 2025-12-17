@@ -108,8 +108,18 @@ ASP.NET Core Web API（後端）
 
 ### 資料庫設定
 
-專案使用 LocalDB，連線字串定義在 `appsettings.json`：
+專案支援 SQL Server 和 SQLite 兩種資料庫：
 
+**使用 SQLite（預設）：**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=oilprice.db"
+  }
+}
+```
+
+**使用 SQL Server LocalDB：**
 ```json
 {
   "ConnectionStrings": {

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>油價預測圖表示範</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        canvas {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>台灣油價走勢與預測示範</h1>
+        
+        <div class="info">
+            <strong>功能說明：</strong>
+            <ul>
+                <li>實線部分：歷史油價資料</li>
+                <li><strong>虛線部分：未來30天價格預測</strong></li>
+                <li>預測採用線性迴歸演算法，基於最近30天的趨勢計算</li>
+                <li>API端點：<code>/api/oilprices/history-with-predictions?days=30</code></li>
+            </ul>
+        </div>
+
+        <canvas id="demoChart"></canvas>
+    </div>
+
+    <script>
+        // Inline Chart.js (simplified version for demo)
+        // In production, use full Chart.js from CDN or local file
+        
+        // Sample data from API
+        const apiData = [
+            {"date":"2025-11-18","price92":29.7,"price95":31.2,"price98":33.2,"priceDiesel":27.7,"isPrediction":false},
+            {"date":"2025-11-25","price92":29.9,"price95":31.4,"price98":33.4,"priceDiesel":27.9,"isPrediction":false},
+            {"date":"2025-12-02","price92":30.1,"price95":31.6,"price98":33.6,"priceDiesel":28.1,"isPrediction":false},
+            {"date":"2025-12-09","price92":30.3,"price95":31.8,"price98":33.8,"priceDiesel":28.3,"isPrediction":false},
+            {"date":"2025-12-10","price92":30.5,"price95":32.0,"price98":34.0,"priceDiesel":28.5,"isPrediction":true},
+            {"date":"2025-12-17","price92":31.9,"price95":33.4,"price98":35.4,"priceDiesel":29.9,"isPrediction":true},
+            {"date":"2025-12-24","price92":33.3,"price95":34.8,"price98":36.8,"priceDiesel":31.3,"isPrediction":true},
+            {"date":"2025-12-31","price92":34.7,"price95":36.2,"price98":38.2,"priceDiesel":32.7,"isPrediction":true},
+            {"date":"2026-01-07","price92":36.1,"price95":37.6,"price98":39.6,"priceDiesel":34.1,"isPrediction":true}
+        ];
+
+        // Create a simple canvas chart
+        const canvas = document.getElementById('demoChart');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        canvas.width = 1100;
+        canvas.height = 400;
+        
+        // Chart dimensions
+        const padding = 60;
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+        
+        // Find min/max values
+        const allPrices = apiData.flatMap(d => [d.price92, d.price95, d.price98, d.priceDiesel]);
+        const minPrice = Math.floor(Math.min(...allPrices) - 1);
+        const maxPrice = Math.ceil(Math.max(...allPrices) + 1);
+        
+        // Helper functions
+        function getX(index) {
+            return padding + (index / (apiData.length - 1)) * chartWidth;
+        }
+        
+        function getY(price) {
+            return padding + chartHeight - ((price - minPrice) / (maxPrice - minPrice)) * chartHeight;
+        }
+        
+        // Draw axes
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, padding + chartHeight);
+        ctx.lineTo(padding + chartWidth, padding + chartHeight);
+        ctx.stroke();
+        
+        // Draw grid lines
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 5; i++) {
+            const y = padding + (chartHeight / 5) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(padding + chartWidth, y);
+            ctx.stroke();
+            
+            // Y-axis labels
+            const price = maxPrice - ((maxPrice - minPrice) / 5) * i;
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText('$' + price.toFixed(1), padding - 10, y + 4);
+        }
+        
+        // Draw title
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 16px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('油價走勢圖（實線=歷史，虛線=預測）', canvas.width / 2, 30);
+        
+        // Find index where predictions start
+        const firstPredictionIndex = apiData.findIndex(d => d.isPrediction);
+        
+        // Draw lines for each fuel type
+        const fuelTypes = [
+            { key: 'price92', color: '#0d6efd', label: '92無鉛' },
+            { key: 'price95', color: '#198754', label: '95無鉛' },
+            { key: 'price98', color: '#ffc107', label: '98無鉛' },
+            { key: 'priceDiesel', color: '#dc3545', label: '超級柴油' }
+        ];
+        
+        fuelTypes.forEach(fuel => {
+            // Draw historical data (solid line)
+            ctx.strokeStyle = fuel.color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            
+            for (let i = 0; i < Math.min(firstPredictionIndex + 1, apiData.length); i++) {
+                const x = getX(i);
+                const y = getY(apiData[i][fuel.key]);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw prediction data (dashed line)
+            if (firstPredictionIndex > 0) {
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(getX(firstPredictionIndex - 1), getY(apiData[firstPredictionIndex - 1][fuel.key]));
+                
+                for (let i = firstPredictionIndex; i < apiData.length; i++) {
+                    const x = getX(i);
+                    const y = getY(apiData[i][fuel.key]);
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+        });
+        
+        // Draw legend
+        ctx.setLineDash([]);
+        let legendX = padding + 20;
+        const legendY = padding + 20;
+        
+        fuelTypes.forEach((fuel, index) => {
+            ctx.fillStyle = fuel.color;
+            ctx.fillRect(legendX, legendY + index * 20, 15, 3);
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(fuel.label, legendX + 20, legendY + index * 20 + 4);
+        });
+        
+        // Draw X-axis labels (dates)
+        ctx.fillStyle = '#666';
+        ctx.font = '10px Arial';
+        ctx.textAlign = 'center';
+        apiData.forEach((d, i) => {
+            if (i % 2 === 0) { // Show every other date to avoid crowding
+                const date = new Date(d.date);
+                const label = (date.getMonth() + 1) + '/' + date.getDate();
+                ctx.fillText(label, getX(i), padding + chartHeight + 20);
+            }
+        });
+        
+        // Add prediction marker
+        if (firstPredictionIndex > 0) {
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            const x = getX(firstPredictionIndex - 0.5);
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, padding + chartHeight);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('↓ 預測開始', x, padding - 10);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+header h1 {
+    color: #0d6efd;
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    color: #198754;
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+.price-up {
+    color: #dc3545;
+}
+
+.price-down {
+    color: #198754;
+}
+
+.btn-group button {
+    min-width: 80px;
+}
+
+canvas {
+    max-height: 500px;
+}
+
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.5rem;
+    }
+}
